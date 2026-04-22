@@ -4,6 +4,7 @@ import android.content.ComponentName
 import android.content.Context
 import android.util.Log
 import com.nothing.glyphbattery.model.AnimationMode
+import com.nothing.glyphbattery.model.ChargeCompleteAction
 import com.nothing.glyphbattery.model.FillDirection
 import com.nothing.glyphbattery.model.FillMode
 import com.nothing.glyphbattery.model.GlyphSettings
@@ -23,10 +24,15 @@ class GlyphController(private val context: Context) {
         private const val TAG = "GlyphController"
         private const val MAX_INTENSITY = 4000
 
+        // Default (bottom-to-top): used in Single mode and as base
+        private val A_CHANNELS = (30 downTo 20).toList()   // 11 LEDs, A_11→A_1
+        private val B_CHANNELS = (31..35).toList()          // 5 LEDs, B_1→B_5
+        private val C_CHANNELS = (0..19).toList()            // 20 LEDs, C_1→C_20
 
-        private val A_CHANNELS = (30 downTo 20).toList()   // 11 LEDs
-        private val B_CHANNELS = (31..35).toList()          // 5 LEDs
-        private val C_CHANNELS = (0..19).toList()            // 20 LEDs
+        // Reversed lists for circular snake pattern
+        private val A_CHANNELS_REV = A_CHANNELS.reversed()  // A_1→A_11 (top-to-bottom)
+        private val B_CHANNELS_REV = B_CHANNELS.reversed()  // B_5→B_1 (top-to-bottom)
+        private val C_CHANNELS_REV = C_CHANNELS.reversed()  // C_20→C_1 (top-to-bottom)
     }
 
     private var glyphManager: GlyphManager? = null
@@ -68,11 +74,23 @@ class GlyphController(private val context: Context) {
         return (brightnessPercent * MAX_INTENSITY / 100).coerceIn(0, MAX_INTENSITY)
     }
 
-    /** Returns ordered zone groups (first, second, third) based on fill direction. */
+    /**
+     * Returns ordered zone groups with circular (snake) fill directions.
+     * ABC: A top→bottom, B bottom→top, C bottom→top
+     * CBA: C top→bottom, B top→bottom, A bottom→top
+     */
     private fun orderedZones(settings: GlyphSettings): Triple<List<Int>, List<Int>, List<Int>> {
         return when (settings.fillDirection) {
-            FillDirection.ABC -> Triple(A_CHANNELS, B_CHANNELS, C_CHANNELS)
-            FillDirection.CBA -> Triple(C_CHANNELS, B_CHANNELS, A_CHANNELS)
+            FillDirection.ABC -> Triple(A_CHANNELS_REV, B_CHANNELS, C_CHANNELS)
+            FillDirection.CBA -> Triple(C_CHANNELS_REV, B_CHANNELS_REV, A_CHANNELS)
+        }
+    }
+
+    private fun channelsForZone(zone: GlyphZone): List<Int> {
+        return when (zone) {
+            GlyphZone.ZONE_A -> A_CHANNELS
+            GlyphZone.ZONE_B -> B_CHANNELS
+            GlyphZone.ZONE_C -> C_CHANNELS
         }
     }
 
@@ -94,26 +112,29 @@ class GlyphController(private val context: Context) {
         }
     }
 
-    fun playCelebration(brightness: Int = 100) {
+    fun showChargeComplete(settings: GlyphSettings) {
         if (!isSessionOpen) return
         val gm = glyphManager ?: return
-        val intensity = intensityFor(brightness)
-        val allChannels = A_CHANNELS + B_CHANNELS + C_CHANNELS
         animationJob?.cancel()
-        animationJob = scope.launch {
-            try {
-                repeat(2) {
+        val lowIntensity = intensityFor(10)
+        try {
+            when (settings.chargeCompleteAction) {
+                ChargeCompleteAction.TURN_OFF -> gm.turnOff()
+                ChargeCompleteAction.SINGLE_ZONE -> {
+                    val channels = channelsForZone(settings.chargeCompleteZone)
                     val builder = gm.glyphFrameBuilder
-                    for (ch in allChannels) builder.buildChannel(ch, intensity)
+                    for (ch in channels) builder.buildChannel(ch, lowIntensity)
                     gm.toggle(builder.build())
-                    delay(350)
-                    gm.turnOff()
-                    delay(250)
                 }
-                val builder = gm.glyphFrameBuilder
-                for (ch in allChannels) builder.buildChannel(ch, intensity)
-                gm.toggle(builder.build())
-            } catch (_: CancellationException) {}
+                ChargeCompleteAction.ALL_ZONES -> {
+                    val allChannels = A_CHANNELS + B_CHANNELS + C_CHANNELS
+                    val builder = gm.glyphFrameBuilder
+                    for (ch in allChannels) builder.buildChannel(ch, lowIntensity)
+                    gm.toggle(builder.build())
+                }
+            }
+        } catch (e: Exception) {
+            Log.e(TAG, "showChargeComplete failed", e)
         }
     }
 

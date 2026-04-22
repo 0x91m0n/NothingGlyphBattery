@@ -21,6 +21,7 @@
     <string name="select_glyph">Select Glyph Zone</string>
     <string name="auto_start">Auto-start on boot</string>
     <string name="only_when_charging">Only when charging</string>
+    <string name="show_notification">Show notification</string>
 
     <!-- Fill Modes -->
     <string name="mode_progressive">Progressive Fill</string>
@@ -54,6 +55,8 @@
     <string name="timer_30">30 minutes</string>
     <string name="timer_60">1 hour</string>
     <string name="timer_120">2 hours</string>
+    <string name="timer_custom">Custom</string>
+    <string name="timer_custom_hint">Minutes</string>
 
     <!-- Fill Direction -->
     <string name="fill_direction">Fill Direction</string>
@@ -67,6 +70,16 @@
 
     <!-- Animation Speed -->
     <string name="animation_speed">Animation Speed</string>
+
+    <!-- Charge Complete -->
+    <string name="charge_complete">When Fully Charged</string>
+    <string name="charge_complete_off">Turn off LEDs</string>
+    <string name="charge_complete_off_desc">All glyphs turn off at 100%</string>
+    <string name="charge_complete_single">One zone at 10%</string>
+    <string name="charge_complete_single_desc">Selected zone stays on at low brightness</string>
+    <string name="charge_complete_all">All zones at 10%</string>
+    <string name="charge_complete_all_desc">All zones stay on at low brightness</string>
+    <string name="charge_complete_zone">Zone for 100%</string>
 
     <!-- Glyph Zones (Phone 3a) -->
     <string name="zone_a">Zone A (11 LEDs — vertical strip)</string>

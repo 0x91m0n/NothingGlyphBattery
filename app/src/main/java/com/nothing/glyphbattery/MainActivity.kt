@@ -128,8 +128,12 @@ class MainActivity : ComponentActivity() {
                     onUpdateBrightness = { scope.launch { settingsStore.updateBrightness(it) } },
                     onUpdateAnimationSpeed = { scope.launch { settingsStore.updateAnimationSpeed(it) } },
                     onUpdateAutoOffTimer = { scope.launch { settingsStore.updateAutoOffTimer(it) } },
+                    onUpdateCustomAutoOffMinutes = { scope.launch { settingsStore.updateCustomAutoOffMinutes(it) } },
+                    onUpdateChargeCompleteAction = { scope.launch { settingsStore.updateChargeCompleteAction(it) } },
+                    onUpdateChargeCompleteZone = { scope.launch { settingsStore.updateChargeCompleteZone(it) } },
                     onUpdateAutoStart = { scope.launch { settingsStore.updateAutoStart(it) } },
-                    onUpdateOnlyWhenCharging = { scope.launch { settingsStore.updateOnlyWhenCharging(it) } }
+                    onUpdateOnlyWhenCharging = { scope.launch { settingsStore.updateOnlyWhenCharging(it) } },
+                    onUpdateShowNotification = { scope.launch { settingsStore.updateShowNotification(it) } }
                 )
             }
         }

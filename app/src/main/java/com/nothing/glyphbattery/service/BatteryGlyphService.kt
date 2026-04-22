@@ -26,6 +26,7 @@ class BatteryGlyphService : Service() {
     companion object {
         private const val TAG = "BatteryGlyphService"
         private const val CHANNEL_ID = "glyph_battery_channel"
+        private const val CHANNEL_ID_SILENT = "glyph_battery_channel_silent"
         private const val NOTIFICATION_ID = 1001
 
         const val ACTION_START = "com.nothing.glyphbattery.START"
@@ -94,9 +95,12 @@ class BatteryGlyphService : Service() {
     private fun observeSettings() {
         serviceScope.launch {
             settingsStore.settings.collect { settings ->
-                val timerChanged = currentSettings.autoOffTimer != settings.autoOffTimer
+                val timerChanged = currentSettings.autoOffTimer != settings.autoOffTimer ||
+                    (settings.autoOffTimer == AutoOffTimer.CUSTOM && currentSettings.customAutoOffMinutes != settings.customAutoOffMinutes)
+                val notifChanged = currentSettings.showNotification != settings.showNotification
                 currentSettings = settings
                 if (timerChanged) restartAutoOffTimer()
+                if (notifChanged) updateNotification(getCurrentBatteryLevel())
                 if (!glyphsDisabledByTimer) {
                     val batteryPercent = getCurrentBatteryLevel()
                     glyphController.updateBatteryGlyph(batteryPercent, currentSettings)
@@ -108,9 +112,11 @@ class BatteryGlyphService : Service() {
     private fun restartAutoOffTimer() {
         autoOffJob?.cancel()
         glyphsDisabledByTimer = false
-        if (currentSettings.autoOffTimer != AutoOffTimer.OFF) {
+        val minutes = if (currentSettings.autoOffTimer == AutoOffTimer.CUSTOM)
+            currentSettings.customAutoOffMinutes else currentSettings.autoOffTimer.minutes
+        if (minutes > 0) {
             autoOffJob = serviceScope.launch {
-                delay(currentSettings.autoOffTimer.minutes * 60_000L)
+                delay(minutes * 60_000L)
                 Log.d(TAG, "Auto-off timer expired, turning off glyphs")
                 glyphsDisabledByTimer = true
                 glyphController.turnOff()
@@ -137,16 +143,15 @@ class BatteryGlyphService : Service() {
         val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING
         val isFull = status == BatteryManager.BATTERY_STATUS_FULL || percent == 100
 
-        // 100% celebration: blink all 2x then stay on
+        // 100% charge complete action
         if (isFull && !celebrationPlayed) {
             celebrationPlayed = true
-            glyphsDisabledByTimer = false // override timer for celebration
-            glyphController.playCelebration(currentSettings.brightness)
+            glyphsDisabledByTimer = false
+            glyphController.showChargeComplete(currentSettings)
             updateNotification(percent)
             previousBatteryPercent = percent
             return
         }
-        // Reset celebration flag when unplugged or battery drops
         if (!isCharging && !isFull) {
             celebrationPlayed = false
         }
@@ -169,15 +174,24 @@ class BatteryGlyphService : Service() {
     }
 
     private fun createNotificationChannel() {
-        val channel = NotificationChannel(
+        val nm = getSystemService(NotificationManager::class.java)
+        val visible = NotificationChannel(
             CHANNEL_ID,
             getString(R.string.notification_channel_name),
             NotificationManager.IMPORTANCE_LOW
         ).apply {
             setShowBadge(false)
         }
-        val nm = getSystemService(NotificationManager::class.java)
-        nm.createNotificationChannel(channel)
+        val silent = NotificationChannel(
+            CHANNEL_ID_SILENT,
+            getString(R.string.notification_channel_name),
+            NotificationManager.IMPORTANCE_MIN
+        ).apply {
+            setShowBadge(false)
+            description = "Silent"
+        }
+        nm.createNotificationChannel(visible)
+        nm.createNotificationChannel(silent)
     }
 
     private fun buildNotification(batteryPercent: Int): Notification {
@@ -187,7 +201,9 @@ class BatteryGlyphService : Service() {
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        return Notification.Builder(this, CHANNEL_ID)
+        val channelId = if (currentSettings.showNotification) CHANNEL_ID else CHANNEL_ID_SILENT
+
+        return Notification.Builder(this, channelId)
             .setContentTitle(getString(R.string.notification_title))
             .setContentText(getString(R.string.notification_text, batteryPercent))
             .setSmallIcon(android.R.drawable.ic_lock_idle_charging)

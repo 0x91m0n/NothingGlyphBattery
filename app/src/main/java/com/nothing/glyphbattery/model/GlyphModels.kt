@@ -19,12 +19,19 @@ enum class AnimationMode {
     SMOOTH_FILL
 }
 
+enum class ChargeCompleteAction {
+    TURN_OFF,
+    SINGLE_ZONE,
+    ALL_ZONES
+}
+
 enum class AutoOffTimer(val minutes: Int) {
     OFF(0),
     MIN_15(15),
     MIN_30(30),
     HOUR_1(60),
-    HOUR_2(120)
+    HOUR_2(120),
+    CUSTOM(-1)
 }
 
 /**
@@ -58,6 +65,10 @@ data class GlyphSettings(
     val brightness: Int = 100,
     val animationSpeed: Int = 100,
     val autoOffTimer: AutoOffTimer = AutoOffTimer.OFF,
+    val customAutoOffMinutes: Int = 45,
+    val chargeCompleteAction: ChargeCompleteAction = ChargeCompleteAction.TURN_OFF,
+    val chargeCompleteZone: GlyphZone = GlyphZone.ZONE_A,
     val autoStart: Boolean = false,
-    val onlyWhenCharging: Boolean = true
+    val onlyWhenCharging: Boolean = true,
+    val showNotification: Boolean = true
 )

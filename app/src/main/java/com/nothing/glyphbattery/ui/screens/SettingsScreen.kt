@@ -1,25 +1,33 @@
 package com.nothing.glyphbattery.ui.screens
 
+import androidx.compose.animation.*
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Check
+import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.nothing.glyphbattery.R
 import com.nothing.glyphbattery.model.AnimationMode
 import com.nothing.glyphbattery.model.AppLanguage
 import com.nothing.glyphbattery.model.AutoOffTimer
+import com.nothing.glyphbattery.model.ChargeCompleteAction
 import com.nothing.glyphbattery.model.FillDirection
 import com.nothing.glyphbattery.model.FillMode
 import com.nothing.glyphbattery.model.GlyphSettings
@@ -39,20 +47,33 @@ fun SettingsScreen(
     onUpdateBrightness: (Int) -> Unit,
     onUpdateAnimationSpeed: (Int) -> Unit,
     onUpdateAutoOffTimer: (AutoOffTimer) -> Unit,
+    onUpdateCustomAutoOffMinutes: (Int) -> Unit,
+    onUpdateChargeCompleteAction: (ChargeCompleteAction) -> Unit,
+    onUpdateChargeCompleteZone: (GlyphZone) -> Unit,
     onUpdateAutoStart: (Boolean) -> Unit,
-    onUpdateOnlyWhenCharging: (Boolean) -> Unit
+    onUpdateOnlyWhenCharging: (Boolean) -> Unit,
+    onUpdateShowNotification: (Boolean) -> Unit
 ) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(stringResource(R.string.settings)) },
+                title = {
+                    Text(
+                        stringResource(R.string.settings).uppercase(),
+                        style = MaterialTheme.typography.titleLarge
+                    )
+                },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = "Back",
+                            tint = NothingLightGray
+                        )
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = NothingBlack,
+                    containerColor = Color.Transparent,
                     titleContentColor = NothingWhite
                 )
             )
@@ -64,8 +85,8 @@ fun SettingsScreen(
                 .fillMaxSize()
                 .padding(padding)
                 .verticalScroll(rememberScrollState())
-                .padding(16.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
             // Language
             SettingsSection(title = stringResource(R.string.language)) {
@@ -84,7 +105,11 @@ fun SettingsScreen(
             }
 
             // Fill Direction (only for CIRCULAR mode)
-            if (settings.fillMode == FillMode.CIRCULAR) {
+            AnimatedVisibility(
+                visible = settings.fillMode == FillMode.CIRCULAR,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
                 SettingsSection(title = stringResource(R.string.fill_direction)) {
                     FillDirectionSelector(
                         selected = settings.fillDirection,
@@ -94,7 +119,11 @@ fun SettingsScreen(
             }
 
             // Glyph Zone (only for SINGLE mode)
-            if (settings.fillMode == FillMode.SINGLE) {
+            AnimatedVisibility(
+                visible = settings.fillMode == FillMode.SINGLE,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
                 SettingsSection(title = stringResource(R.string.glyph_zone)) {
                     GlyphZoneSelector(
                         selected = settings.selectedZone,
@@ -120,7 +149,11 @@ fun SettingsScreen(
             }
 
             // Animation Speed (only when animation is active)
-            if (settings.animationMode != AnimationMode.NONE) {
+            AnimatedVisibility(
+                visible = settings.animationMode != AnimationMode.NONE,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
                 SettingsSection(title = stringResource(R.string.animation_speed)) {
                     AnimationSpeedSlider(
                         speed = settings.animationSpeed,
@@ -135,6 +168,38 @@ fun SettingsScreen(
                     selected = settings.autoOffTimer,
                     onSelect = onUpdateAutoOffTimer
                 )
+                AnimatedVisibility(
+                    visible = settings.autoOffTimer == AutoOffTimer.CUSTOM,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    CustomTimerInput(
+                        minutes = settings.customAutoOffMinutes,
+                        onUpdate = onUpdateCustomAutoOffMinutes
+                    )
+                }
+            }
+
+            // Charge Complete
+            SettingsSection(title = stringResource(R.string.charge_complete)) {
+                ChargeCompleteSelector(
+                    selected = settings.chargeCompleteAction,
+                    onSelect = onUpdateChargeCompleteAction
+                )
+            }
+
+            // Zone picker for single-zone charge complete
+            AnimatedVisibility(
+                visible = settings.chargeCompleteAction == ChargeCompleteAction.SINGLE_ZONE,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                SettingsSection(title = stringResource(R.string.charge_complete_zone)) {
+                    GlyphZoneSelector(
+                        selected = settings.chargeCompleteZone,
+                        onSelect = onUpdateChargeCompleteZone
+                    )
+                }
             }
 
             // Toggles
@@ -144,15 +209,21 @@ fun SettingsScreen(
                     checked = settings.autoStart,
                     onToggle = onUpdateAutoStart
                 )
-                Spacer(modifier = Modifier.height(8.dp))
+                Spacer(modifier = Modifier.height(6.dp))
                 SettingsToggle(
                     label = stringResource(R.string.only_when_charging),
                     checked = settings.onlyWhenCharging,
                     onToggle = onUpdateOnlyWhenCharging
                 )
+                Spacer(modifier = Modifier.height(6.dp))
+                SettingsToggle(
+                    label = stringResource(R.string.show_notification),
+                    checked = settings.showNotification,
+                    onToggle = onUpdateShowNotification
+                )
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(20.dp))
         }
     }
 }
@@ -162,15 +233,16 @@ fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) 
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(16.dp))
+            .clip(RoundedCornerShape(20.dp))
+            .border(1.dp, NothingCardBorder, RoundedCornerShape(20.dp))
             .background(NothingDarkGray)
             .padding(16.dp)
     ) {
         if (title.isNotEmpty()) {
             Text(
-                text = title,
-                style = MaterialTheme.typography.titleLarge,
-                color = NothingWhite,
+                text = title.uppercase(),
+                style = MaterialTheme.typography.labelMedium,
+                color = NothingLightGray,
                 modifier = Modifier.padding(bottom = 12.dp)
             )
         }
@@ -178,6 +250,7 @@ fun SettingsSection(title: String, content: @Composable ColumnScope.() -> Unit) 
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun LanguageSelector(selected: AppLanguage, onSelect: (AppLanguage) -> Unit) {
     val options = listOf(
@@ -185,12 +258,66 @@ fun LanguageSelector(selected: AppLanguage, onSelect: (AppLanguage) -> Unit) {
         AppLanguage.ENGLISH to stringResource(R.string.lang_english),
         AppLanguage.RUSSIAN to stringResource(R.string.lang_russian)
     )
-    options.forEach { (lang, label) ->
-        SelectableRow(
-            label = label,
-            isSelected = selected == lang,
-            onClick = { onSelect(lang) }
-        )
+    var expanded by remember { mutableStateOf(false) }
+    val selectedLabel = options.firstOrNull { it.first == selected }?.second ?: ""
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .clickable { expanded = true }
+                .background(NothingMediumGray)
+                .padding(horizontal = 14.dp, vertical = 14.dp)
+                .menuAnchor(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = selectedLabel,
+                style = MaterialTheme.typography.bodyLarge,
+                color = NothingWhite
+            )
+            Icon(
+                Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = NothingLightGray
+            )
+        }
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(NothingDarkGray)
+        ) {
+            options.forEach { (lang, label) ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = label,
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (selected == lang) NothingWhite else NothingLightGray
+                        )
+                    },
+                    onClick = {
+                        onSelect(lang)
+                        expanded = false
+                    },
+                    trailingIcon = if (selected == lang) {
+                        {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = null,
+                                tint = NothingWhite,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    } else null
+                )
+            }
+        }
     }
 }
 
@@ -256,6 +383,7 @@ fun BrightnessSlider(brightness: Int, onUpdate: (Int) -> Unit) {
             style = MaterialTheme.typography.bodyLarge,
             color = NothingWhite
         )
+        Spacer(modifier = Modifier.height(4.dp))
         Slider(
             value = sliderValue,
             onValueChange = { sliderValue = it },
@@ -296,6 +424,7 @@ fun AnimationSpeedSlider(speed: Int, onUpdate: (Int) -> Unit) {
             style = MaterialTheme.typography.bodyLarge,
             color = NothingWhite
         )
+        Spacer(modifier = Modifier.height(4.dp))
         Slider(
             value = sliderValue,
             onValueChange = { sliderValue = it },
@@ -317,7 +446,8 @@ fun AutoOffTimerSelector(selected: AutoOffTimer, onSelect: (AutoOffTimer) -> Uni
         AutoOffTimer.MIN_15 to stringResource(R.string.timer_15),
         AutoOffTimer.MIN_30 to stringResource(R.string.timer_30),
         AutoOffTimer.HOUR_1 to stringResource(R.string.timer_60),
-        AutoOffTimer.HOUR_2 to stringResource(R.string.timer_120)
+        AutoOffTimer.HOUR_2 to stringResource(R.string.timer_120),
+        AutoOffTimer.CUSTOM to stringResource(R.string.timer_custom)
     )
     options.forEach { (timer, label) ->
         SelectableRow(
@@ -329,9 +459,66 @@ fun AutoOffTimerSelector(selected: AutoOffTimer, onSelect: (AutoOffTimer) -> Uni
 }
 
 @Composable
+fun CustomTimerInput(minutes: Int, onUpdate: (Int) -> Unit) {
+    var text by remember(minutes) { mutableStateOf(minutes.toString()) }
+
+    Spacer(modifier = Modifier.height(8.dp))
+    OutlinedTextField(
+        value = text,
+        onValueChange = { newValue ->
+            val filtered = newValue.filter { it.isDigit() }.take(4)
+            text = filtered
+            filtered.toIntOrNull()?.let { mins ->
+                if (mins in 1..1440) onUpdate(mins)
+            }
+        },
+        label = {
+            Text(
+                stringResource(R.string.timer_custom_hint),
+                style = MaterialTheme.typography.bodySmall
+            )
+        },
+        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+        singleLine = true,
+        modifier = Modifier.fillMaxWidth(),
+        colors = OutlinedTextFieldDefaults.colors(
+            focusedTextColor = NothingWhite,
+            unfocusedTextColor = NothingWhite,
+            cursorColor = NothingWhite,
+            focusedBorderColor = NothingWhite,
+            unfocusedBorderColor = NothingLightGray,
+            focusedLabelColor = NothingWhite,
+            unfocusedLabelColor = NothingLightGray
+        ),
+        shape = RoundedCornerShape(14.dp)
+    )
+}
+
+@Composable
+fun ChargeCompleteSelector(selected: ChargeCompleteAction, onSelect: (ChargeCompleteAction) -> Unit) {
+    val options = listOf(
+        ChargeCompleteAction.TURN_OFF to (stringResource(R.string.charge_complete_off) to stringResource(R.string.charge_complete_off_desc)),
+        ChargeCompleteAction.SINGLE_ZONE to (stringResource(R.string.charge_complete_single) to stringResource(R.string.charge_complete_single_desc)),
+        ChargeCompleteAction.ALL_ZONES to (stringResource(R.string.charge_complete_all) to stringResource(R.string.charge_complete_all_desc))
+    )
+    options.forEach { (action, textPair) ->
+        SelectableRow(
+            label = textPair.first,
+            subtitle = textPair.second,
+            isSelected = selected == action,
+            onClick = { onSelect(action) }
+        )
+    }
+}
+
+@Composable
 fun SettingsToggle(label: String, checked: Boolean, onToggle: (Boolean) -> Unit) {
     Row(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clip(RoundedCornerShape(12.dp))
+            .background(if (checked) NothingMediumGray.copy(alpha = 0.5f) else Color.Transparent)
+            .padding(horizontal = 4.dp, vertical = 6.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -363,10 +550,10 @@ fun SelectableRow(
     Row(
         modifier = Modifier
             .fillMaxWidth()
-            .clip(RoundedCornerShape(12.dp))
+            .clip(RoundedCornerShape(14.dp))
             .clickable(onClick = onClick)
-            .background(if (isSelected) NothingMediumGray else NothingDarkGray)
-            .padding(horizontal = 12.dp, vertical = 10.dp),
+            .background(if (isSelected) NothingMediumGray else Color.Transparent)
+            .padding(horizontal = 14.dp, vertical = 12.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) {
@@ -379,19 +566,27 @@ fun SelectableRow(
             if (subtitle != null) {
                 Text(
                     text = subtitle,
-                    style = MaterialTheme.typography.bodyMedium,
+                    style = MaterialTheme.typography.bodySmall,
                     color = NothingLightGray
                 )
             }
         }
         if (isSelected) {
-            Icon(
-                Icons.Default.Check,
-                contentDescription = null,
-                tint = NothingWhite,
-                modifier = Modifier.size(20.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .size(22.dp)
+                    .clip(CircleShape)
+                    .background(NothingWhite),
+                contentAlignment = Alignment.Center
+            ) {
+                Icon(
+                    Icons.Default.Check,
+                    contentDescription = null,
+                    tint = NothingBlack,
+                    modifier = Modifier.size(14.dp)
+                )
+            }
         }
     }
-    Spacer(modifier = Modifier.height(4.dp))
+    Spacer(modifier = Modifier.height(2.dp))
 }

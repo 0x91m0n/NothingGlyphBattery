@@ -21,6 +21,7 @@
     <string name="select_glyph">Выберите зону Glyph</string>
     <string name="auto_start">Автозапуск при загрузке</string>
     <string name="only_when_charging">Только при зарядке</string>
+    <string name="show_notification">Показывать уведомление</string>
 
     <!-- Fill Modes -->
     <string name="mode_progressive">Последовательное заполнение</string>
@@ -54,6 +55,8 @@
     <string name="timer_30">30 минут</string>
     <string name="timer_60">1 час</string>
     <string name="timer_120">2 часа</string>
+    <string name="timer_custom">Вручную</string>
+    <string name="timer_custom_hint">Минуты</string>
 
     <!-- Fill Direction -->
     <string name="fill_direction">Направление заполнения</string>
@@ -67,6 +70,16 @@
 
     <!-- Animation Speed -->
     <string name="animation_speed">Скорость анимации</string>
+
+    <!-- Charge Complete -->
+    <string name="charge_complete">При полной зарядке</string>
+    <string name="charge_complete_off">Выключить LED</string>
+    <string name="charge_complete_off_desc">Все глифы выключаются при 100%</string>
+    <string name="charge_complete_single">Одна зона на 10%</string>
+    <string name="charge_complete_single_desc">Выбранная зона остаётся на низкой яркости</string>
+    <string name="charge_complete_all">Все зоны на 10%</string>
+    <string name="charge_complete_all_desc">Все зоны остаются на низкой яркости</string>
+    <string name="charge_complete_zone">Зона для 100%</string>
 
     <!-- Glyph Zones (Phone 3a) -->
     <string name="zone_a">Зона A (11 LED — вертикальная полоса)</string>

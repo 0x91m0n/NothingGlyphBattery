@@ -7,6 +7,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.nothing.glyphbattery.model.AnimationMode
 import com.nothing.glyphbattery.model.AppLanguage
 import com.nothing.glyphbattery.model.AutoOffTimer
+import com.nothing.glyphbattery.model.ChargeCompleteAction
 import com.nothing.glyphbattery.model.FillDirection
 import com.nothing.glyphbattery.model.FillMode
 import com.nothing.glyphbattery.model.GlyphSettings
@@ -27,8 +28,12 @@ class SettingsStore(private val context: Context) {
         private val BRIGHTNESS = intPreferencesKey("brightness")
         private val ANIMATION_SPEED = intPreferencesKey("animation_speed")
         private val AUTO_OFF_TIMER = stringPreferencesKey("auto_off_timer")
+        private val CUSTOM_AUTO_OFF_MINUTES = intPreferencesKey("custom_auto_off_minutes")
+        private val CHARGE_COMPLETE_ACTION = stringPreferencesKey("charge_complete_action")
+        private val CHARGE_COMPLETE_ZONE = stringPreferencesKey("charge_complete_zone")
         private val AUTO_START = booleanPreferencesKey("auto_start")
         private val ONLY_WHEN_CHARGING = booleanPreferencesKey("only_when_charging")
+        private val SHOW_NOTIFICATION = booleanPreferencesKey("show_notification")
     }
 
     val settings: Flow<GlyphSettings> = context.dataStore.data.map { prefs ->
@@ -48,8 +53,14 @@ class SettingsStore(private val context: Context) {
             animationSpeed = prefs[ANIMATION_SPEED] ?: 100,
             autoOffTimer = prefs[AUTO_OFF_TIMER]?.let { runCatching { AutoOffTimer.valueOf(it) }.getOrNull() }
                 ?: AutoOffTimer.OFF,
+            customAutoOffMinutes = prefs[CUSTOM_AUTO_OFF_MINUTES] ?: 45,
+            chargeCompleteAction = prefs[CHARGE_COMPLETE_ACTION]?.let { runCatching { ChargeCompleteAction.valueOf(it) }.getOrNull() }
+                ?: ChargeCompleteAction.TURN_OFF,
+            chargeCompleteZone = prefs[CHARGE_COMPLETE_ZONE]?.let { runCatching { GlyphZone.valueOf(it) }.getOrNull() }
+                ?: GlyphZone.ZONE_A,
             autoStart = prefs[AUTO_START] ?: false,
-            onlyWhenCharging = prefs[ONLY_WHEN_CHARGING] ?: true
+            onlyWhenCharging = prefs[ONLY_WHEN_CHARGING] ?: true,
+            showNotification = prefs[SHOW_NOTIFICATION] ?: true
         )
     }
 
@@ -85,11 +96,27 @@ class SettingsStore(private val context: Context) {
         context.dataStore.edit { it[AUTO_OFF_TIMER] = timer.name }
     }
 
+    suspend fun updateCustomAutoOffMinutes(minutes: Int) {
+        context.dataStore.edit { it[CUSTOM_AUTO_OFF_MINUTES] = minutes.coerceIn(1, 1440) }
+    }
+
+    suspend fun updateChargeCompleteAction(action: ChargeCompleteAction) {
+        context.dataStore.edit { it[CHARGE_COMPLETE_ACTION] = action.name }
+    }
+
+    suspend fun updateChargeCompleteZone(zone: GlyphZone) {
+        context.dataStore.edit { it[CHARGE_COMPLETE_ZONE] = zone.name }
+    }
+
     suspend fun updateAutoStart(enabled: Boolean) {
         context.dataStore.edit { it[AUTO_START] = enabled }
     }
 
     suspend fun updateOnlyWhenCharging(enabled: Boolean) {
         context.dataStore.edit { it[ONLY_WHEN_CHARGING] = enabled }
+    }
+
+    suspend fun updateShowNotification(enabled: Boolean) {
+        context.dataStore.edit { it[SHOW_NOTIFICATION] = enabled }
     }
 }
