@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Glyph Батарея</string>
+
+    <!-- Main Screen -->
+    <string name="battery_level">Батарея: %1$d%%</string>
+    <string name="service_running">Сервис запущен</string>
+    <string name="service_stopped">Сервис остановлен</string>
+    <string name="start_service">Запустить</string>
+    <string name="stop_service">Остановить</string>
+    <string name="charging">Заряжается</string>
+    <string name="not_charging">Не заряжается</string>
+
+    <!-- Settings -->
+    <string name="settings">Настройки</string>
+    <string name="language">Язык</string>
+    <string name="fill_mode">Режим заполнения</string>
+    <string name="glyph_zone">Зона Glyph</string>
+    <string name="select_language">Выберите язык</string>
+    <string name="select_fill_mode">Выберите режим заполнения</string>
+    <string name="select_glyph">Выберите зону Glyph</string>
+    <string name="auto_start">Автозапуск при загрузке</string>
+    <string name="only_when_charging">Только при зарядке</string>
+
+    <!-- Fill Modes -->
+    <string name="mode_progressive">Последовательное заполнение</string>
+    <string name="mode_progressive_desc">Зоны заполняются одна за другой по мере зарядки</string>
+    <string name="mode_circular">Зона за зоной</string>
+    <string name="mode_circular_desc">Заполняет зоны одну за другой по мере зарядки</string>
+    <string name="mode_single">Одиночный Glyph</string>
+    <string name="mode_single_desc">Одна зона светится с яркостью, соответствующей уровню заряда</string>
+    <string name="mode_all">Все зоны</string>
+    <string name="mode_all_desc">A и B включены, C показывает прогресс</string>
+
+    <!-- Animation Modes -->
+    <string name="animation_mode">Анимация</string>
+    <string name="anim_none">Без анимации</string>
+    <string name="anim_none_desc">Статичное отображение</string>
+    <string name="anim_breathing">Дыхание</string>
+    <string name="anim_breathing_desc">Плавная пульсация</string>
+    <string name="anim_blinking">Мигание</string>
+    <string name="anim_blinking_desc">Светодиоды мигают вкл/выкл</string>
+    <string name="anim_wave">Волна</string>
+    <string name="anim_wave_desc">Свет бегает туда-сюда</string>
+    <string name="anim_hourglass">Песочные часы</string>
+    <string name="anim_hourglass_desc">Заполняется и опустошается, как песочные часы</string>
+    <string name="anim_smooth_fill">Плавное заполнение</string>
+    <string name="anim_smooth_fill_desc">Светодиоды загораются один за другим</string>
+
+    <!-- Auto-off Timer -->
+    <string name="auto_off_timer">Таймер отключения</string>
+    <string name="timer_off">Выкл</string>
+    <string name="timer_15">15 минут</string>
+    <string name="timer_30">30 минут</string>
+    <string name="timer_60">1 час</string>
+    <string name="timer_120">2 часа</string>
+
+    <!-- Fill Direction -->
+    <string name="fill_direction">Направление заполнения</string>
+    <string name="direction_abc">A → B → C</string>
+    <string name="direction_abc_desc">Заполняет от зоны A к зоне C</string>
+    <string name="direction_cba">C → B → A</string>
+    <string name="direction_cba_desc">Заполняет от зоны C к зоне A</string>
+
+    <!-- Brightness -->
+    <string name="brightness">Яркость</string>
+
+    <!-- Animation Speed -->
+    <string name="animation_speed">Скорость анимации</string>
+
+    <!-- Glyph Zones (Phone 3a) -->
+    <string name="zone_a">Зона A (11 LED — вертикальная полоса)</string>
+    <string name="zone_b">Зона B (5 LED — малая группа)</string>
+    <string name="zone_c">Зона C (20 LED — основная полоса)</string>
+
+    <!-- Languages -->
+    <string name="lang_english">English</string>
+    <string name="lang_russian">Русский</string>
+    <string name="lang_system">Системный</string>
+
+    <!-- Notifications -->
+    <string name="notification_channel_name">Сервис Glyph Батареи</string>
+    <string name="notification_title">Glyph Батарея активна</string>
+    <string name="notification_text">Мониторинг батареи: %1$d%%</string>
+
+    <!-- About -->
+    <string name="about">О приложении</string>
+    <string name="about_text">Glyph Батарея для Nothing Phone 3a.\nУправление Glyph LED на основе уровня заряда.</string>
+    <string name="version">Версия %1$s</string>
+</resources>
