@@ -40,7 +40,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         settingsStore = (application as GlyphBatteryApp).settingsStore
-        requestNotificationPermission()
 
         setContent {
             GlyphBatteryTheme {
@@ -74,7 +73,7 @@ class MainActivity : ComponentActivity() {
 
         var batteryLevel by remember { mutableIntStateOf(getCurrentBattery()) }
         var isCharging by remember { mutableStateOf(false) }
-        var isServiceRunning by remember { mutableStateOf(false) }
+        var isServiceRunning by remember { mutableStateOf(BatteryGlyphService.isRunning) }
 
         DisposableEffect(Unit) {
             val receiver = object : BroadcastReceiver() {
@@ -132,8 +131,7 @@ class MainActivity : ComponentActivity() {
                     onUpdateChargeCompleteAction = { scope.launch { settingsStore.updateChargeCompleteAction(it) } },
                     onUpdateChargeCompleteZone = { scope.launch { settingsStore.updateChargeCompleteZone(it) } },
                     onUpdateAutoStart = { scope.launch { settingsStore.updateAutoStart(it) } },
-                    onUpdateOnlyWhenCharging = { scope.launch { settingsStore.updateOnlyWhenCharging(it) } },
-                    onUpdateShowNotification = { scope.launch { settingsStore.updateShowNotification(it) } }
+                    onUpdateOnlyWhenCharging = { scope.launch { settingsStore.updateOnlyWhenCharging(it) } }
                 )
             }
         }
@@ -144,11 +142,4 @@ class MainActivity : ComponentActivity() {
         return bm.getIntProperty(BatteryManager.BATTERY_PROPERTY_CAPACITY)
     }
 
-    private fun requestNotificationPermission() {
-        if (ContextCompat.checkSelfPermission(this, Manifest.permission.POST_NOTIFICATIONS)
-            != PackageManager.PERMISSION_GRANTED
-        ) {
-            notificationPermissionLauncher.launch(Manifest.permission.POST_NOTIFICATIONS)
-        }
-    }
 }

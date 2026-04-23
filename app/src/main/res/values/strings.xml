@@ -82,9 +82,9 @@
     <string name="charge_complete_zone">Zone for 100%</string>
 
     <!-- Glyph Zones (Phone 3a) -->
-    <string name="zone_a">Zone A (11 LEDs — vertical strip)</string>
-    <string name="zone_b">Zone B (5 LEDs — small group)</string>
-    <string name="zone_c">Zone C (20 LEDs — main strip)</string>
+    <string name="zone_a">Zone A 11 LEDs — vertical strip</string>
+    <string name="zone_b">Zone B 5 LEDs — small group</string>
+    <string name="zone_c">Zone C 20 LEDs — main strip</string>
 
     <!-- Languages -->
     <string name="lang_english">English</string>

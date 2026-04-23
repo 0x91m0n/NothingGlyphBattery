@@ -82,9 +82,9 @@
     <string name="charge_complete_zone">Зона для 100%</string>
 
     <!-- Glyph Zones (Phone 3a) -->
-    <string name="zone_a">Зона A (11 LED — вертикальная полоса)</string>
-    <string name="zone_b">Зона B (5 LED — малая группа)</string>
-    <string name="zone_c">Зона C (20 LED — основная полоса)</string>
+    <string name="zone_a">Зона A 11 LED — вертикальная полоса</string>
+    <string name="zone_b">Зона B 5 LED — малая группа</string>
+    <string name="zone_c">Зона C 20 LED — основная полоса</string>
 
     <!-- Languages -->
     <string name="lang_english">English</string>

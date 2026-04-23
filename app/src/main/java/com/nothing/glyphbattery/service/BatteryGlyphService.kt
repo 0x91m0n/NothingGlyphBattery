@@ -20,17 +20,21 @@ import com.nothing.glyphbattery.model.AutoOffTimer
 import com.nothing.glyphbattery.model.GlyphSettings
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.runBlocking
 
 class BatteryGlyphService : Service() {
 
     companion object {
         private const val TAG = "BatteryGlyphService"
-        private const val CHANNEL_ID = "glyph_battery_channel"
-        private const val CHANNEL_ID_SILENT = "glyph_battery_channel_silent"
+        private const val CHANNEL_ID = "glyph_battery_silent"
         private const val NOTIFICATION_ID = 1001
 
         const val ACTION_START = "com.nothing.glyphbattery.START"
         const val ACTION_STOP = "com.nothing.glyphbattery.STOP"
+
+        @Volatile
+        var isRunning = false
+            private set
 
         fun start(context: Context) {
             val intent = Intent(context, BatteryGlyphService::class.java).apply {
@@ -64,6 +68,7 @@ class BatteryGlyphService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+        isRunning = true
         glyphController = GlyphController(this)
         settingsStore = SettingsStore(this)
         createNotificationChannel()
@@ -76,7 +81,11 @@ class BatteryGlyphService : Service() {
                 return START_NOT_STICKY
             }
             else -> {
-                startForeground(NOTIFICATION_ID, buildNotification(0))
+                // Load settings before startForeground so correct channel is used
+                runBlocking {
+                    currentSettings = settingsStore.settings.first()
+                }
+                startForeground(NOTIFICATION_ID, buildNotification())
                 initService()
             }
         }
@@ -97,10 +106,8 @@ class BatteryGlyphService : Service() {
             settingsStore.settings.collect { settings ->
                 val timerChanged = currentSettings.autoOffTimer != settings.autoOffTimer ||
                     (settings.autoOffTimer == AutoOffTimer.CUSTOM && currentSettings.customAutoOffMinutes != settings.customAutoOffMinutes)
-                val notifChanged = currentSettings.showNotification != settings.showNotification
                 currentSettings = settings
                 if (timerChanged) restartAutoOffTimer()
-                if (notifChanged) updateNotification(getCurrentBatteryLevel())
                 if (!glyphsDisabledByTimer) {
                     val batteryPercent = getCurrentBatteryLevel()
                     glyphController.updateBatteryGlyph(batteryPercent, currentSettings)
@@ -148,7 +155,6 @@ class BatteryGlyphService : Service() {
             celebrationPlayed = true
             glyphsDisabledByTimer = false
             glyphController.showChargeComplete(currentSettings)
-            updateNotification(percent)
             previousBatteryPercent = percent
             return
         }
@@ -165,7 +171,6 @@ class BatteryGlyphService : Service() {
         }
 
         previousBatteryPercent = percent
-        updateNotification(percent)
     }
 
     private fun getCurrentBatteryLevel(): Int {
@@ -175,50 +180,41 @@ class BatteryGlyphService : Service() {
 
     private fun createNotificationChannel() {
         val nm = getSystemService(NotificationManager::class.java)
-        val visible = NotificationChannel(
+        // Delete old channels if they exist
+        nm.deleteNotificationChannel("glyph_battery_channel")
+        nm.deleteNotificationChannel("glyph_battery_channel_silent")
+        val channel = NotificationChannel(
             CHANNEL_ID,
-            getString(R.string.notification_channel_name),
-            NotificationManager.IMPORTANCE_LOW
-        ).apply {
-            setShowBadge(false)
-        }
-        val silent = NotificationChannel(
-            CHANNEL_ID_SILENT,
-            getString(R.string.notification_channel_name),
+            "Service",
             NotificationManager.IMPORTANCE_MIN
         ).apply {
             setShowBadge(false)
-            description = "Silent"
+            lockscreenVisibility = Notification.VISIBILITY_SECRET
+            description = "Required for background service"
         }
-        nm.createNotificationChannel(visible)
-        nm.createNotificationChannel(silent)
+        nm.createNotificationChannel(channel)
     }
 
-    private fun buildNotification(batteryPercent: Int): Notification {
+    private fun buildNotification(): Notification {
         val pendingIntent = PendingIntent.getActivity(
             this, 0,
-            Intent(this, MainActivity::class.java),
+            Intent(this, MainActivity::class.java).apply {
+                flags = Intent.FLAG_ACTIVITY_SINGLE_TOP or Intent.FLAG_ACTIVITY_CLEAR_TOP
+            },
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
         )
 
-        val channelId = if (currentSettings.showNotification) CHANNEL_ID else CHANNEL_ID_SILENT
-
-        return Notification.Builder(this, channelId)
-            .setContentTitle(getString(R.string.notification_title))
-            .setContentText(getString(R.string.notification_text, batteryPercent))
+        return Notification.Builder(this, CHANNEL_ID)
             .setSmallIcon(android.R.drawable.ic_lock_idle_charging)
             .setContentIntent(pendingIntent)
             .setOngoing(true)
+            .setVisibility(Notification.VISIBILITY_SECRET)
             .build()
-    }
-
-    private fun updateNotification(batteryPercent: Int) {
-        val nm = getSystemService(NotificationManager::class.java)
-        nm.notify(NOTIFICATION_ID, buildNotification(batteryPercent))
     }
 
     override fun onDestroy() {
         super.onDestroy()
+        isRunning = false
         serviceScope.cancel()
         try {
             unregisterReceiver(batteryReceiver)

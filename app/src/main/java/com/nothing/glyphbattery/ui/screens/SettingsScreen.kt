@@ -51,8 +51,7 @@ fun SettingsScreen(
     onUpdateChargeCompleteAction: (ChargeCompleteAction) -> Unit,
     onUpdateChargeCompleteZone: (GlyphZone) -> Unit,
     onUpdateAutoStart: (Boolean) -> Unit,
-    onUpdateOnlyWhenCharging: (Boolean) -> Unit,
-    onUpdateShowNotification: (Boolean) -> Unit
+    onUpdateOnlyWhenCharging: (Boolean) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -215,15 +214,18 @@ fun SettingsScreen(
                     checked = settings.onlyWhenCharging,
                     onToggle = onUpdateOnlyWhenCharging
                 )
-                Spacer(modifier = Modifier.height(6.dp))
-                SettingsToggle(
-                    label = stringResource(R.string.show_notification),
-                    checked = settings.showNotification,
-                    onToggle = onUpdateShowNotification
-                )
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Text(
+                text = "made by 0x91m0n",
+                style = MaterialTheme.typography.bodySmall,
+                color = NothingLightGray.copy(alpha = 0.2f),
+                modifier = Modifier.align(Alignment.CenterHorizontally)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
         }
     }
 }
