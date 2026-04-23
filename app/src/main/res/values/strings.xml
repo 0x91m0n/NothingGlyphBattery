@@ -19,9 +19,13 @@
     <string name="select_language">Select Language</string>
     <string name="select_fill_mode">Select Fill Mode</string>
     <string name="select_glyph">Select Glyph Zone</string>
-    <string name="auto_start">Auto-start on boot</string>
-    <string name="only_when_charging">Only when charging</string>
-    <string name="show_notification">Show notification</string>
+    <string name="service_mode">Service Mode</string>
+    <string name="mode_manual">Manual</string>
+    <string name="mode_manual_desc">Start and stop with the button</string>
+    <string name="mode_always_on">Always On</string>
+    <string name="mode_always_on_desc">Auto-start on boot, runs continuously</string>
+    <string name="mode_charging_only">Charging Only</string>
+    <string name="mode_charging_only_desc">Starts when plugged in, stops when unplugged</string>
 
     <!-- Fill Modes -->
     <string name="mode_progressive">Progressive Fill</string>

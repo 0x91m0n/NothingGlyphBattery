@@ -144,7 +144,7 @@ private fun BatteryRing(batteryLevel: Int, isCharging: Boolean) {
         else               -> NothingRed
     }
 
-    // Subtle pulsing glow when charging
+    // Subtle pulsing glow + stroke width when charging
     val infiniteTransition = rememberInfiniteTransition(label = "pulse")
     val glowAlpha by infiniteTransition.animateFloat(
         initialValue = 0.08f,
@@ -154,6 +154,15 @@ private fun BatteryRing(batteryLevel: Int, isCharging: Boolean) {
             repeatMode = RepeatMode.Reverse
         ),
         label = "glow"
+    )
+    val strokePulse by infiniteTransition.animateFloat(
+        initialValue = 6f,
+        targetValue = 8.5f,
+        animationSpec = infiniteRepeatable(
+            animation = tween(1500, easing = FastOutSlowInEasing),
+            repeatMode = RepeatMode.Reverse
+        ),
+        label = "strokePulse"
     )
 
     Box(contentAlignment = Alignment.Center, modifier = Modifier.size(240.dp)) {
@@ -179,13 +188,14 @@ private fun BatteryRing(batteryLevel: Int, isCharging: Boolean) {
                 style = Stroke(width = 6.dp.toPx(), cap = StrokeCap.Round),
                 size = Size(size.width, size.height)
             )
-            // Battery arc
+            // Battery arc (pulses when charging)
+            val arcStroke = if (isCharging) strokePulse.dp.toPx() else 6.dp.toPx()
             drawArc(
                 color = arcColor,
                 startAngle = -90f,
                 sweepAngle = sweepAngle,
                 useCenter = false,
-                style = Stroke(width = 6.dp.toPx(), cap = StrokeCap.Round),
+                style = Stroke(width = arcStroke, cap = StrokeCap.Round),
                 size = Size(size.width, size.height)
             )
         }

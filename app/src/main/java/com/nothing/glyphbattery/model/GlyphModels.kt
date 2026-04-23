@@ -68,7 +68,11 @@ data class GlyphSettings(
     val customAutoOffMinutes: Int = 45,
     val chargeCompleteAction: ChargeCompleteAction = ChargeCompleteAction.TURN_OFF,
     val chargeCompleteZone: GlyphZone = GlyphZone.ZONE_A,
-    val autoStart: Boolean = false,
-    val onlyWhenCharging: Boolean = true,
-    val showNotification: Boolean = true
+    val serviceMode: ServiceMode = ServiceMode.MANUAL
 )
+
+enum class ServiceMode {
+    MANUAL,
+    ALWAYS_ON,
+    CHARGING_ONLY
+}

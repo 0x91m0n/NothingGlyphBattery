@@ -12,6 +12,7 @@ import com.nothing.glyphbattery.model.FillDirection
 import com.nothing.glyphbattery.model.FillMode
 import com.nothing.glyphbattery.model.GlyphSettings
 import com.nothing.glyphbattery.model.GlyphZone
+import com.nothing.glyphbattery.model.ServiceMode
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 
@@ -31,9 +32,7 @@ class SettingsStore(private val context: Context) {
         private val CUSTOM_AUTO_OFF_MINUTES = intPreferencesKey("custom_auto_off_minutes")
         private val CHARGE_COMPLETE_ACTION = stringPreferencesKey("charge_complete_action")
         private val CHARGE_COMPLETE_ZONE = stringPreferencesKey("charge_complete_zone")
-        private val AUTO_START = booleanPreferencesKey("auto_start")
-        private val ONLY_WHEN_CHARGING = booleanPreferencesKey("only_when_charging")
-        private val SHOW_NOTIFICATION = booleanPreferencesKey("show_notification")
+        private val SERVICE_MODE = stringPreferencesKey("service_mode")
     }
 
     val settings: Flow<GlyphSettings> = context.dataStore.data.map { prefs ->
@@ -58,9 +57,8 @@ class SettingsStore(private val context: Context) {
                 ?: ChargeCompleteAction.TURN_OFF,
             chargeCompleteZone = prefs[CHARGE_COMPLETE_ZONE]?.let { runCatching { GlyphZone.valueOf(it) }.getOrNull() }
                 ?: GlyphZone.ZONE_A,
-            autoStart = prefs[AUTO_START] ?: false,
-            onlyWhenCharging = prefs[ONLY_WHEN_CHARGING] ?: true,
-            showNotification = prefs[SHOW_NOTIFICATION] ?: true
+            serviceMode = prefs[SERVICE_MODE]?.let { runCatching { ServiceMode.valueOf(it) }.getOrNull() }
+                ?: ServiceMode.MANUAL
         )
     }
 
@@ -108,15 +106,7 @@ class SettingsStore(private val context: Context) {
         context.dataStore.edit { it[CHARGE_COMPLETE_ZONE] = zone.name }
     }
 
-    suspend fun updateAutoStart(enabled: Boolean) {
-        context.dataStore.edit { it[AUTO_START] = enabled }
-    }
-
-    suspend fun updateOnlyWhenCharging(enabled: Boolean) {
-        context.dataStore.edit { it[ONLY_WHEN_CHARGING] = enabled }
-    }
-
-    suspend fun updateShowNotification(enabled: Boolean) {
-        context.dataStore.edit { it[SHOW_NOTIFICATION] = enabled }
+    suspend fun updateServiceMode(mode: ServiceMode) {
+        context.dataStore.edit { it[SERVICE_MODE] = mode.name }
     }
 }

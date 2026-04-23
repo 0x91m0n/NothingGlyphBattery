@@ -164,8 +164,6 @@ class BatteryGlyphService : Service() {
 
         if (glyphsDisabledByTimer) {
             // Timer expired — keep glyphs off (except for 100% celebration above)
-        } else if (currentSettings.onlyWhenCharging && !isCharging) {
-            glyphController.turnOff()
         } else {
             glyphController.updateBatteryGlyph(percent, currentSettings)
         }

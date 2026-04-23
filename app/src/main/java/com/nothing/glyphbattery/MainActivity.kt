@@ -130,8 +130,7 @@ class MainActivity : ComponentActivity() {
                     onUpdateCustomAutoOffMinutes = { scope.launch { settingsStore.updateCustomAutoOffMinutes(it) } },
                     onUpdateChargeCompleteAction = { scope.launch { settingsStore.updateChargeCompleteAction(it) } },
                     onUpdateChargeCompleteZone = { scope.launch { settingsStore.updateChargeCompleteZone(it) } },
-                    onUpdateAutoStart = { scope.launch { settingsStore.updateAutoStart(it) } },
-                    onUpdateOnlyWhenCharging = { scope.launch { settingsStore.updateOnlyWhenCharging(it) } }
+                    onUpdateServiceMode = { scope.launch { settingsStore.updateServiceMode(it) } }
                 )
             }
         }

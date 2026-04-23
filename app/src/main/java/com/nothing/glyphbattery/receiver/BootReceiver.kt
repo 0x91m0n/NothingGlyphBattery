@@ -4,6 +4,7 @@ import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import com.nothing.glyphbattery.data.SettingsStore
+import com.nothing.glyphbattery.model.ServiceMode
 import com.nothing.glyphbattery.service.BatteryGlyphService
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -14,7 +15,7 @@ class BootReceiver : BroadcastReceiver() {
             val settings = runBlocking {
                 SettingsStore(context).settings.first()
             }
-            if (settings.autoStart) {
+            if (settings.serviceMode == ServiceMode.ALWAYS_ON) {
                 BatteryGlyphService.start(context)
             }
         }

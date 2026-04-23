@@ -32,6 +32,7 @@ import com.nothing.glyphbattery.model.FillDirection
 import com.nothing.glyphbattery.model.FillMode
 import com.nothing.glyphbattery.model.GlyphSettings
 import com.nothing.glyphbattery.model.GlyphZone
+import com.nothing.glyphbattery.model.ServiceMode
 import com.nothing.glyphbattery.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -50,8 +51,7 @@ fun SettingsScreen(
     onUpdateCustomAutoOffMinutes: (Int) -> Unit,
     onUpdateChargeCompleteAction: (ChargeCompleteAction) -> Unit,
     onUpdateChargeCompleteZone: (GlyphZone) -> Unit,
-    onUpdateAutoStart: (Boolean) -> Unit,
-    onUpdateOnlyWhenCharging: (Boolean) -> Unit
+    onUpdateServiceMode: (ServiceMode) -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -201,18 +201,11 @@ fun SettingsScreen(
                 }
             }
 
-            // Toggles
-            SettingsSection(title = "") {
-                SettingsToggle(
-                    label = stringResource(R.string.auto_start),
-                    checked = settings.autoStart,
-                    onToggle = onUpdateAutoStart
-                )
-                Spacer(modifier = Modifier.height(6.dp))
-                SettingsToggle(
-                    label = stringResource(R.string.only_when_charging),
-                    checked = settings.onlyWhenCharging,
-                    onToggle = onUpdateOnlyWhenCharging
+            // Service Mode
+            SettingsSection(title = stringResource(R.string.service_mode)) {
+                ServiceModeSelector(
+                    selected = settings.serviceMode,
+                    onSelect = onUpdateServiceMode
                 )
             }
 
@@ -591,4 +584,21 @@ fun SelectableRow(
         }
     }
     Spacer(modifier = Modifier.height(2.dp))
+}
+
+@Composable
+fun ServiceModeSelector(selected: ServiceMode, onSelect: (ServiceMode) -> Unit) {
+    val options = listOf(
+        ServiceMode.MANUAL to (stringResource(R.string.mode_manual) to stringResource(R.string.mode_manual_desc)),
+        ServiceMode.ALWAYS_ON to (stringResource(R.string.mode_always_on) to stringResource(R.string.mode_always_on_desc)),
+        ServiceMode.CHARGING_ONLY to (stringResource(R.string.mode_charging_only) to stringResource(R.string.mode_charging_only_desc))
+    )
+    options.forEach { (mode, textPair) ->
+        SelectableRow(
+            label = textPair.first,
+            subtitle = textPair.second,
+            isSelected = selected == mode,
+            onClick = { onSelect(mode) }
+        )
+    }
 }
