@@ -15,7 +15,7 @@ class BootReceiver : BroadcastReceiver() {
             val settings = runBlocking {
                 SettingsStore(context).settings.first()
             }
-            if (settings.serviceMode == ServiceMode.ALWAYS_ON) {
+            if (settings.serviceMode == ServiceMode.ALWAYS_ON || settings.serviceMode == ServiceMode.CHARGING_ONLY) {
                 BatteryGlyphService.start(context)
             }
         }

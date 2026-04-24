@@ -18,6 +18,7 @@ import com.nothing.glyphbattery.data.SettingsStore
 import com.nothing.glyphbattery.glyph.GlyphController
 import com.nothing.glyphbattery.model.AutoOffTimer
 import com.nothing.glyphbattery.model.GlyphSettings
+import com.nothing.glyphbattery.model.ServiceMode
 import kotlinx.coroutines.*
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.runBlocking
@@ -164,6 +165,8 @@ class BatteryGlyphService : Service() {
 
         if (glyphsDisabledByTimer) {
             // Timer expired — keep glyphs off (except for 100% celebration above)
+        } else if (currentSettings.serviceMode == ServiceMode.CHARGING_ONLY && !isCharging) {
+            glyphController.turnOff()
         } else {
             glyphController.updateBatteryGlyph(percent, currentSettings)
         }
