@@ -4,10 +4,10 @@ Your Nothing Phone's Glyph LEDs show battery level in real time.
 
 [🇷🇺 Русская версия](README_RU.md)
 
-<!-- <p align="center">
-  <img src="screenshots/main.png" width="250" />
-  <img src="screenshots/settings.png" width="250" />
-</p> -->
+<p align="center">
+  <img src="screenshots/screen1.png" width="250" />
+  <img src="screenshots/screen2.png" width="250" />
+</p>
 ## What it does
 
 The app lights up Glyph LEDs on the back of your Nothing Phone to show how much battery you have left. The more charge — the more LEDs are lit.
