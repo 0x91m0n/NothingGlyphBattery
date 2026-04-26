@@ -109,4 +109,5 @@ class SettingsStore(private val context: Context) {
     suspend fun updateServiceMode(mode: ServiceMode) {
         context.dataStore.edit { it[SERVICE_MODE] = mode.name }
     }
+
 }

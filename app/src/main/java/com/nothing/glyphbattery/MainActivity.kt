@@ -1,19 +1,15 @@
 package com.nothing.glyphbattery
 
-import android.Manifest
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
-import android.content.pm.PackageManager
 import android.content.res.Configuration
 import android.os.BatteryManager
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.runtime.*
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -32,10 +28,6 @@ import java.util.Locale
 class MainActivity : ComponentActivity() {
 
     private lateinit var settingsStore: SettingsStore
-
-    private val notificationPermissionLauncher = registerForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { /* granted or not */ }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -82,8 +74,7 @@ class MainActivity : ComponentActivity() {
                         val level = it.getIntExtra(BatteryManager.EXTRA_LEVEL, -1)
                         val scale = it.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
                         batteryLevel = (level * 100 / scale).coerceIn(0, 100)
-                        isCharging = it.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ==
-                                BatteryManager.BATTERY_STATUS_CHARGING
+                        isCharging = it.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) != 0
                     }
                 }
             }

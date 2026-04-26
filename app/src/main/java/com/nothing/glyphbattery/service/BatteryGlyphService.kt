@@ -11,6 +11,7 @@ import android.content.Intent
 import android.content.IntentFilter
 import android.os.BatteryManager
 import android.os.IBinder
+import android.os.PowerManager
 import android.util.Log
 import com.nothing.glyphbattery.MainActivity
 import com.nothing.glyphbattery.R
@@ -60,6 +61,7 @@ class BatteryGlyphService : Service() {
     private var glyphsDisabledByTimer = false
     private var previousBatteryPercent = -1
     private var celebrationPlayed = false
+    private var wakeLock: PowerManager.WakeLock? = null
 
     private val batteryReceiver = object : BroadcastReceiver() {
         override fun onReceive(context: Context?, intent: Intent?) {
@@ -73,6 +75,7 @@ class BatteryGlyphService : Service() {
         glyphController = GlyphController(this)
         settingsStore = SettingsStore(this)
         createNotificationChannel()
+        acquireWakeLock()
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -148,7 +151,9 @@ class BatteryGlyphService : Service() {
         val scale = intent.getIntExtra(BatteryManager.EXTRA_SCALE, 100)
         val percent = (level * 100 / scale).coerceIn(0, 100)
         val status = intent.getIntExtra(BatteryManager.EXTRA_STATUS, -1)
-        val isCharging = status == BatteryManager.BATTERY_STATUS_CHARGING
+        val plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
+        val isPluggedIn = plugged != 0
+        val isCharging = isPluggedIn
         val isFull = status == BatteryManager.BATTERY_STATUS_FULL || percent == 100
 
         // 100% charge complete action
@@ -216,11 +221,27 @@ class BatteryGlyphService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         isRunning = false
+        releaseWakeLock()
         serviceScope.cancel()
         try {
             unregisterReceiver(batteryReceiver)
         } catch (_: Exception) {}
         glyphController.release()
+    }
+
+    private fun acquireWakeLock() {
+        val pm = getSystemService(POWER_SERVICE) as PowerManager
+        wakeLock = pm.newWakeLock(
+            PowerManager.PARTIAL_WAKE_LOCK,
+            "GlyphBattery::ServiceLock"
+        ).apply { acquire() }
+    }
+
+    private fun releaseWakeLock() {
+        wakeLock?.let {
+            if (it.isHeld) it.release()
+        }
+        wakeLock = null
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
