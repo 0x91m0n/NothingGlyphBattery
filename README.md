@@ -2,7 +2,7 @@
 
 Your Nothing Phone's Glyph LEDs show battery level in real time.
 
-[🇷🇺 Русская версия](README_RU.md)
+[Русская версия](README_RU.md)
 
 <p align="center">
   <img src="screenshots/screen1.png" width="250" />
