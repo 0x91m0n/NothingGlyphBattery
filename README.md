@@ -2,7 +2,6 @@
 
 Your Nothing Phone's Glyph LEDs show battery level in real time.
 
-[Русская версия](README_RU.md)
 
 <p align="center">
   <img src="screenshots/screen1.png" width="250" />
@@ -30,3 +29,6 @@ The app lights up Glyph LEDs on the back of your Nothing Phone to show how much 
 
 - Nothing Phone 3a/3a pro
 - Nothing os(Custom systems with glyph support should theoretically work)
+
+
+[Русская версия](README_RU.md)
