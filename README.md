@@ -28,5 +28,5 @@ The app lights up Glyph LEDs on the back of your Nothing Phone to show how much 
 
 ## Compatibility
 
-- Nothing Phone 3a
+- Nothing Phone 3a/3a pro
 - Nothing os(Custom systems with glyph support should theoretically work)
