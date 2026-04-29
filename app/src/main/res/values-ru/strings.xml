@@ -84,6 +84,7 @@
     <string name="charge_complete_all">Все зоны на 10%</string>
     <string name="charge_complete_all_desc">Все зоны остаются на низкой яркости</string>
     <string name="charge_complete_zone">Зона для 100%</string>
+    <string name="charge_full_threshold">Лимит зарядки</string>
 
     <!-- Glyph Zones (Phone 3a) -->
     <string name="zone_a">Зона A 11 LED — вертикальная полоса</string>

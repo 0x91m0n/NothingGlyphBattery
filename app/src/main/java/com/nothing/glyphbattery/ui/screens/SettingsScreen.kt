@@ -51,6 +51,7 @@ fun SettingsScreen(
     onUpdateCustomAutoOffMinutes: (Int) -> Unit,
     onUpdateChargeCompleteAction: (ChargeCompleteAction) -> Unit,
     onUpdateChargeCompleteZone: (GlyphZone) -> Unit,
+    onUpdateChargeFullThreshold: (Int) -> Unit,
     onUpdateServiceMode: (ServiceMode) -> Unit
 ) {
     Scaffold(
@@ -199,6 +200,14 @@ fun SettingsScreen(
                         onSelect = onUpdateChargeCompleteZone
                     )
                 }
+            }
+
+            // Charge full threshold
+            SettingsSection(title = stringResource(R.string.charge_full_threshold)) {
+                ChargeFullThresholdSelector(
+                    selected = settings.chargeFullThreshold,
+                    onSelect = onUpdateChargeFullThreshold
+                )
             }
 
             // Service Mode
@@ -584,6 +593,72 @@ fun SelectableRow(
         }
     }
     Spacer(modifier = Modifier.height(2.dp))
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ChargeFullThresholdSelector(selected: Int, onSelect: (Int) -> Unit) {
+    val options = listOf(70, 80, 90, 100)
+    var expanded by remember { mutableStateOf(false) }
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { expanded = it }
+    ) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(14.dp))
+                .clickable { expanded = true }
+                .background(NothingMediumGray)
+                .padding(horizontal = 14.dp, vertical = 14.dp)
+                .menuAnchor(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(
+                text = "$selected%",
+                style = MaterialTheme.typography.bodyLarge,
+                color = NothingWhite
+            )
+            Icon(
+                Icons.Default.KeyboardArrowDown,
+                contentDescription = null,
+                tint = NothingLightGray
+            )
+        }
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false },
+            modifier = Modifier.background(NothingDarkGray)
+        ) {
+            options.forEach { threshold ->
+                DropdownMenuItem(
+                    text = {
+                        Text(
+                            text = "$threshold%",
+                            style = MaterialTheme.typography.bodyLarge,
+                            color = if (selected == threshold) NothingWhite else NothingLightGray
+                        )
+                    },
+                    onClick = {
+                        onSelect(threshold)
+                        expanded = false
+                    },
+                    trailingIcon = if (selected == threshold) {
+                        {
+                            Icon(
+                                Icons.Default.Check,
+                                contentDescription = null,
+                                tint = NothingWhite,
+                                modifier = Modifier.size(16.dp)
+                            )
+                        }
+                    } else null
+                )
+            }
+        }
+    }
 }
 
 @Composable

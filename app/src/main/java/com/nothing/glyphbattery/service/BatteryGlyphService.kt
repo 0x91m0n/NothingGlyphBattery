@@ -154,7 +154,8 @@ class BatteryGlyphService : Service() {
         val plugged = intent.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0)
         val isPluggedIn = plugged != 0
         val isCharging = isPluggedIn
-        val isFull = status == BatteryManager.BATTERY_STATUS_FULL || percent == 100
+        val threshold = currentSettings.chargeFullThreshold
+        val isFull = status == BatteryManager.BATTERY_STATUS_FULL || percent >= threshold
 
         // 100% charge complete action
         if (isFull && !celebrationPlayed) {

@@ -32,6 +32,7 @@ class SettingsStore(private val context: Context) {
         private val CUSTOM_AUTO_OFF_MINUTES = intPreferencesKey("custom_auto_off_minutes")
         private val CHARGE_COMPLETE_ACTION = stringPreferencesKey("charge_complete_action")
         private val CHARGE_COMPLETE_ZONE = stringPreferencesKey("charge_complete_zone")
+        private val CHARGE_FULL_THRESHOLD = intPreferencesKey("charge_full_threshold")
         private val SERVICE_MODE = stringPreferencesKey("service_mode")
     }
 
@@ -57,6 +58,7 @@ class SettingsStore(private val context: Context) {
                 ?: ChargeCompleteAction.TURN_OFF,
             chargeCompleteZone = prefs[CHARGE_COMPLETE_ZONE]?.let { runCatching { GlyphZone.valueOf(it) }.getOrNull() }
                 ?: GlyphZone.ZONE_A,
+            chargeFullThreshold = prefs[CHARGE_FULL_THRESHOLD] ?: 100,
             serviceMode = prefs[SERVICE_MODE]?.let { runCatching { ServiceMode.valueOf(it) }.getOrNull() }
                 ?: ServiceMode.MANUAL
         )
@@ -104,6 +106,10 @@ class SettingsStore(private val context: Context) {
 
     suspend fun updateChargeCompleteZone(zone: GlyphZone) {
         context.dataStore.edit { it[CHARGE_COMPLETE_ZONE] = zone.name }
+    }
+
+    suspend fun updateChargeFullThreshold(threshold: Int) {
+        context.dataStore.edit { it[CHARGE_FULL_THRESHOLD] = threshold.coerceIn(50, 100) }
     }
 
     suspend fun updateServiceMode(mode: ServiceMode) {

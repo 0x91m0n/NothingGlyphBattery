@@ -68,6 +68,7 @@ data class GlyphSettings(
     val customAutoOffMinutes: Int = 45,
     val chargeCompleteAction: ChargeCompleteAction = ChargeCompleteAction.TURN_OFF,
     val chargeCompleteZone: GlyphZone = GlyphZone.ZONE_A,
+    val chargeFullThreshold: Int = 100,
     val serviceMode: ServiceMode = ServiceMode.MANUAL
 )
 

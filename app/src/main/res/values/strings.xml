@@ -84,6 +84,7 @@
     <string name="charge_complete_all">All zones at 10%</string>
     <string name="charge_complete_all_desc">All zones stay on at low brightness</string>
     <string name="charge_complete_zone">Zone for 100%</string>
+    <string name="charge_full_threshold">Charge limit</string>
 
     <!-- Glyph Zones (Phone 3a) -->
     <string name="zone_a">Zone A 11 LEDs — vertical strip</string>
