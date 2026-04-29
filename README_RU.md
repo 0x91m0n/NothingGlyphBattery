@@ -2,12 +2,16 @@
 
 Glyph LED на вашем Nothing Phone показывают уровень заряда в реальном времени.
 
-[🇬🇧 English version](README.md)
+[English version](README.md)
 
-<p align="center">
-  <img src="screenshots/screen1.png" width="250" />
-  <img src="screenshots/screen2.png" width="250" />
-</p>
+<details>
+  <summary>demo</summary>
+  <p align="center">
+    <img src="screenshots/gif.gif" width="500">
+    <img src="screenshots/screen1.png" width="250" />
+    <img src="screenshots/screen2.png" width="250" />
+  </p>
+</details>
 
 ## Что делает
 
