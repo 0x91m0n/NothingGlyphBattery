@@ -112,11 +112,28 @@ class BatteryGlyphService : Service() {
                     (settings.autoOffTimer == AutoOffTimer.CUSTOM && currentSettings.customAutoOffMinutes != settings.customAutoOffMinutes)
                 currentSettings = settings
                 if (timerChanged) restartAutoOffTimer()
-                if (!glyphsDisabledByTimer) {
-                    val batteryPercent = getCurrentBatteryLevel()
-                    glyphController.updateBatteryGlyph(batteryPercent, currentSettings)
-                }
+                applyCurrentState()
             }
+        }
+    }
+
+    private fun applyCurrentState() {
+        val batteryIntent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
+        val plugged = batteryIntent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0
+        val isCharging = plugged != 0
+        val percent = getCurrentBatteryLevel()
+        val status = batteryIntent?.getIntExtra(BatteryManager.EXTRA_STATUS, -1) ?: -1
+        val threshold = currentSettings.chargeFullThreshold
+        val isFull = status == BatteryManager.BATTERY_STATUS_FULL || percent >= threshold
+
+        if (glyphsDisabledByTimer) {
+            // Timer expired — keep glyphs off
+        } else if (isFull && celebrationPlayed) {
+            glyphController.showChargeComplete(currentSettings)
+        } else if (currentSettings.serviceMode == ServiceMode.CHARGING_ONLY && !isCharging) {
+            glyphController.turnOff()
+        } else {
+            glyphController.updateBatteryGlyph(percent, currentSettings)
         }
     }
 
@@ -171,6 +188,9 @@ class BatteryGlyphService : Service() {
 
         if (glyphsDisabledByTimer) {
             // Timer expired — keep glyphs off (except for 100% celebration above)
+        } else if (isFull && celebrationPlayed) {
+            // Keep charge complete state while still full
+            glyphController.showChargeComplete(currentSettings)
         } else if (currentSettings.serviceMode == ServiceMode.CHARGING_ONLY && !isCharging) {
             glyphController.turnOff()
         } else {
