@@ -30,6 +30,8 @@
     <string name="mode_charging_only_desc">Включается при подключении, выключается при отключении</string>
     <string name="charging_animation_mode">Анимация (Батарея)</string>
     <string name="battery_brightness">Яркость (Батарея)</string>
+    <string name="battery_fill_mode">Режим заполнения (Батарея)</string>
+    <string name="battery_glyph_zone">Зона Glyph (Батарея)</string>
 
     <!-- Fill Modes -->
     <string name="mode_progressive">Последовательное заполнение</string>

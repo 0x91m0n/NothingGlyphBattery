@@ -111,6 +111,9 @@ class MainActivity : ComponentActivity() {
                     onUpdateAnimationMode = { scope.launch { settingsStore.updateAnimationMode(it) } },
                     onUpdateChargingAnimationMode = { scope.launch { settingsStore.updateChargingAnimationMode(it) } },
                     onUpdateBatteryBrightness = { scope.launch { settingsStore.updateBatteryBrightness(it) } },
+                    onUpdateBatteryFillMode = { scope.launch { settingsStore.updateBatteryFillMode(it) } },
+                    onUpdateBatteryFillDirection = { scope.launch { settingsStore.updateBatteryFillDirection(it) } },
+                    onUpdateBatteryZone = { scope.launch { settingsStore.updateBatterySelectedZone(it) } },
                     onUpdateLanguage = { lang ->
                         scope.launch {
                             settingsStore.updateLanguage(lang)

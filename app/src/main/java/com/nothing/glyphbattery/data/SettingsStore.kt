@@ -27,6 +27,9 @@ class SettingsStore(private val context: Context) {
         private val ANIMATION_MODE = stringPreferencesKey("animation_mode")
         private val CHARGING_ANIMATION_MODE = stringPreferencesKey("charging_animation_mode")
         private val BATTERY_BRIGHTNESS = intPreferencesKey("battery_brightness")
+        private val BATTERY_FILL_MODE = stringPreferencesKey("battery_fill_mode")
+        private val BATTERY_FILL_DIRECTION = stringPreferencesKey("battery_fill_direction")
+        private val BATTERY_SELECTED_ZONE = stringPreferencesKey("battery_selected_zone")
         private val LANGUAGE = stringPreferencesKey("language")
         private val BRIGHTNESS = intPreferencesKey("brightness")
         private val ANIMATION_SPEED = intPreferencesKey("animation_speed")
@@ -51,6 +54,12 @@ class SettingsStore(private val context: Context) {
             chargingAnimationMode = prefs[CHARGING_ANIMATION_MODE]?.let { runCatching { AnimationMode.valueOf(it) }.getOrNull() }
                 ?: AnimationMode.NONE,
             batteryBrightness = prefs[BATTERY_BRIGHTNESS] ?: 100,
+            batteryFillMode = prefs[BATTERY_FILL_MODE]?.let { runCatching { FillMode.valueOf(it) }.getOrNull() }
+                ?: FillMode.CIRCULAR,
+            batteryFillDirection = prefs[BATTERY_FILL_DIRECTION]?.let { runCatching { FillDirection.valueOf(it) }.getOrNull() }
+                ?: FillDirection.ABC,
+            batterySelectedZone = prefs[BATTERY_SELECTED_ZONE]?.let { runCatching { GlyphZone.valueOf(it) }.getOrNull() }
+                ?: GlyphZone.ZONE_A,
             language = prefs[LANGUAGE]?.let { code ->
                 AppLanguage.entries.find { it.code == code }
             } ?: AppLanguage.SYSTEM,
@@ -91,6 +100,18 @@ class SettingsStore(private val context: Context) {
 
     suspend fun updateBatteryBrightness(brightness: Int) {
         context.dataStore.edit { it[BATTERY_BRIGHTNESS] = brightness.coerceIn(10, 100) }
+    }
+
+    suspend fun updateBatteryFillMode(mode: FillMode) {
+        context.dataStore.edit { it[BATTERY_FILL_MODE] = mode.name }
+    }
+
+    suspend fun updateBatteryFillDirection(direction: FillDirection) {
+        context.dataStore.edit { it[BATTERY_FILL_DIRECTION] = direction.name }
+    }
+
+    suspend fun updateBatterySelectedZone(zone: GlyphZone) {
+        context.dataStore.edit { it[BATTERY_SELECTED_ZONE] = zone.name }
     }
 
     suspend fun updateLanguage(language: AppLanguage) {

@@ -46,6 +46,9 @@ fun SettingsScreen(
     onUpdateAnimationMode: (AnimationMode) -> Unit,
     onUpdateChargingAnimationMode: (AnimationMode) -> Unit,
     onUpdateBatteryBrightness: (Int) -> Unit,
+    onUpdateBatteryFillMode: (FillMode) -> Unit,
+    onUpdateBatteryFillDirection: (FillDirection) -> Unit,
+    onUpdateBatteryZone: (GlyphZone) -> Unit,
     onUpdateLanguage: (AppLanguage) -> Unit,
     onUpdateBrightness: (Int) -> Unit,
     onUpdateAnimationSpeed: (Int) -> Unit,
@@ -238,6 +241,36 @@ fun SettingsScreen(
                             brightness = settings.batteryBrightness,
                             onUpdate = onUpdateBatteryBrightness
                         )
+                    }
+                    SettingsSection(title = stringResource(R.string.battery_fill_mode)) {
+                        FillModeSelector(
+                            selected = settings.batteryFillMode,
+                            onSelect = onUpdateBatteryFillMode
+                        )
+                    }
+                    AnimatedVisibility(
+                        visible = settings.batteryFillMode == FillMode.CIRCULAR,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        SettingsSection(title = stringResource(R.string.fill_direction)) {
+                            FillDirectionSelector(
+                                selected = settings.batteryFillDirection,
+                                onSelect = onUpdateBatteryFillDirection
+                            )
+                        }
+                    }
+                    AnimatedVisibility(
+                        visible = settings.batteryFillMode == FillMode.SINGLE,
+                        enter = expandVertically() + fadeIn(),
+                        exit = shrinkVertically() + fadeOut()
+                    ) {
+                        SettingsSection(title = stringResource(R.string.battery_glyph_zone)) {
+                            GlyphZoneSelector(
+                                selected = settings.batterySelectedZone,
+                                onSelect = onUpdateBatteryZone
+                            )
+                        }
                     }
                 }
             }

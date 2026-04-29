@@ -121,7 +121,10 @@ class BatteryGlyphService : Service() {
         return if (currentSettings.serviceMode == ServiceMode.ALWAYS_ON_CHARGING && !isCharging) {
             currentSettings.copy(
                 animationMode = currentSettings.chargingAnimationMode,
-                brightness = currentSettings.batteryBrightness
+                brightness = currentSettings.batteryBrightness,
+                fillMode = currentSettings.batteryFillMode,
+                fillDirection = currentSettings.batteryFillDirection,
+                selectedZone = currentSettings.batterySelectedZone
             )
         } else {
             currentSettings
