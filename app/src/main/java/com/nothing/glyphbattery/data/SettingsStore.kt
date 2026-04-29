@@ -26,6 +26,7 @@ class SettingsStore(private val context: Context) {
         private val SELECTED_ZONE = stringPreferencesKey("selected_zone")
         private val ANIMATION_MODE = stringPreferencesKey("animation_mode")
         private val CHARGING_ANIMATION_MODE = stringPreferencesKey("charging_animation_mode")
+        private val BATTERY_BRIGHTNESS = intPreferencesKey("battery_brightness")
         private val LANGUAGE = stringPreferencesKey("language")
         private val BRIGHTNESS = intPreferencesKey("brightness")
         private val ANIMATION_SPEED = intPreferencesKey("animation_speed")
@@ -49,6 +50,7 @@ class SettingsStore(private val context: Context) {
                 ?: AnimationMode.NONE,
             chargingAnimationMode = prefs[CHARGING_ANIMATION_MODE]?.let { runCatching { AnimationMode.valueOf(it) }.getOrNull() }
                 ?: AnimationMode.NONE,
+            batteryBrightness = prefs[BATTERY_BRIGHTNESS] ?: 100,
             language = prefs[LANGUAGE]?.let { code ->
                 AppLanguage.entries.find { it.code == code }
             } ?: AppLanguage.SYSTEM,
@@ -85,6 +87,10 @@ class SettingsStore(private val context: Context) {
 
     suspend fun updateChargingAnimationMode(mode: AnimationMode) {
         context.dataStore.edit { it[CHARGING_ANIMATION_MODE] = mode.name }
+    }
+
+    suspend fun updateBatteryBrightness(brightness: Int) {
+        context.dataStore.edit { it[BATTERY_BRIGHTNESS] = brightness.coerceIn(10, 100) }
     }
 
     suspend fun updateLanguage(language: AppLanguage) {

@@ -119,7 +119,10 @@ class BatteryGlyphService : Service() {
 
     private fun effectiveSettings(isCharging: Boolean): GlyphSettings {
         return if (currentSettings.serviceMode == ServiceMode.ALWAYS_ON_CHARGING && !isCharging) {
-            currentSettings.copy(animationMode = currentSettings.chargingAnimationMode)
+            currentSettings.copy(
+                animationMode = currentSettings.chargingAnimationMode,
+                brightness = currentSettings.batteryBrightness
+            )
         } else {
             currentSettings
         }

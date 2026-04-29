@@ -45,6 +45,7 @@ fun SettingsScreen(
     onUpdateZone: (GlyphZone) -> Unit,
     onUpdateAnimationMode: (AnimationMode) -> Unit,
     onUpdateChargingAnimationMode: (AnimationMode) -> Unit,
+    onUpdateBatteryBrightness: (Int) -> Unit,
     onUpdateLanguage: (AppLanguage) -> Unit,
     onUpdateBrightness: (Int) -> Unit,
     onUpdateAnimationSpeed: (Int) -> Unit,
@@ -225,11 +226,19 @@ fun SettingsScreen(
                 enter = expandVertically() + fadeIn(),
                 exit = shrinkVertically() + fadeOut()
             ) {
-                SettingsSection(title = stringResource(R.string.charging_animation_mode)) {
-                    AnimationModeSelector(
-                        selected = settings.chargingAnimationMode,
-                        onSelect = onUpdateChargingAnimationMode
-                    )
+                Column {
+                    SettingsSection(title = stringResource(R.string.charging_animation_mode)) {
+                        AnimationModeSelector(
+                            selected = settings.chargingAnimationMode,
+                            onSelect = onUpdateChargingAnimationMode
+                        )
+                    }
+                    SettingsSection(title = stringResource(R.string.battery_brightness)) {
+                        BrightnessSlider(
+                            brightness = settings.batteryBrightness,
+                            onUpdate = onUpdateBatteryBrightness
+                        )
+                    }
                 }
             }
 

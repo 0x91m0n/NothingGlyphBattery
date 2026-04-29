@@ -62,6 +62,7 @@ data class GlyphSettings(
     val selectedZone: GlyphZone = GlyphZone.ZONE_A,
     val animationMode: AnimationMode = AnimationMode.NONE,
     val chargingAnimationMode: AnimationMode = AnimationMode.NONE,
+    val batteryBrightness: Int = 100,
     val language: AppLanguage = AppLanguage.SYSTEM,
     val brightness: Int = 100,
     val animationSpeed: Int = 100,
