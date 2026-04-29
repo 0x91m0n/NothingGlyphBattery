@@ -28,7 +28,7 @@
     <string name="mode_always_on_charging_desc">Всегда включён, отдельная анимация при зарядке</string>
     <string name="mode_charging_only">При зарядке</string>
     <string name="mode_charging_only_desc">Включается при подключении, выключается при отключении</string>
-    <string name="charging_animation_mode">Анимация (Зарядка)</string>
+    <string name="charging_animation_mode">Анимация (Батарея)</string>
 
     <!-- Fill Modes -->
     <string name="mode_progressive">Последовательное заполнение</string>

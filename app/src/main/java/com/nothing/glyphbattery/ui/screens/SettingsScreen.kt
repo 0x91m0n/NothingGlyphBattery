@@ -219,7 +219,7 @@ fun SettingsScreen(
                 )
             }
 
-            // Charging Animation (only in ALWAYS_ON_CHARGING mode)
+            // Battery Animation (only in ALWAYS_ON_CHARGING mode)
             AnimatedVisibility(
                 visible = settings.serviceMode == ServiceMode.ALWAYS_ON_CHARGING,
                 enter = expandVertically() + fadeIn(),
