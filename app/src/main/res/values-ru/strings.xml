@@ -24,8 +24,11 @@
     <string name="mode_manual_desc">Запуск и остановка кнопкой</string>
     <string name="mode_always_on">Всегда</string>
     <string name="mode_always_on_desc">Автозапуск при загрузке, работает постоянно</string>
+    <string name="mode_always_on_charging">Всегда вкл / Зарядка</string>
+    <string name="mode_always_on_charging_desc">Всегда включён, отдельная анимация при зарядке</string>
     <string name="mode_charging_only">При зарядке</string>
     <string name="mode_charging_only_desc">Включается при подключении, выключается при отключении</string>
+    <string name="charging_animation_mode">Анимация (Зарядка)</string>
 
     <!-- Fill Modes -->
     <string name="mode_progressive">Последовательное заполнение</string>

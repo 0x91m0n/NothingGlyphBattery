@@ -44,6 +44,7 @@ fun SettingsScreen(
     onUpdateFillDirection: (FillDirection) -> Unit,
     onUpdateZone: (GlyphZone) -> Unit,
     onUpdateAnimationMode: (AnimationMode) -> Unit,
+    onUpdateChargingAnimationMode: (AnimationMode) -> Unit,
     onUpdateLanguage: (AppLanguage) -> Unit,
     onUpdateBrightness: (Int) -> Unit,
     onUpdateAnimationSpeed: (Int) -> Unit,
@@ -216,6 +217,20 @@ fun SettingsScreen(
                     selected = settings.serviceMode,
                     onSelect = onUpdateServiceMode
                 )
+            }
+
+            // Charging Animation (only in ALWAYS_ON_CHARGING mode)
+            AnimatedVisibility(
+                visible = settings.serviceMode == ServiceMode.ALWAYS_ON_CHARGING,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                SettingsSection(title = stringResource(R.string.charging_animation_mode)) {
+                    AnimationModeSelector(
+                        selected = settings.chargingAnimationMode,
+                        onSelect = onUpdateChargingAnimationMode
+                    )
+                }
             }
 
             Spacer(modifier = Modifier.height(32.dp))
@@ -666,6 +681,7 @@ fun ServiceModeSelector(selected: ServiceMode, onSelect: (ServiceMode) -> Unit) 
     val options = listOf(
         ServiceMode.MANUAL to (stringResource(R.string.mode_manual) to stringResource(R.string.mode_manual_desc)),
         ServiceMode.ALWAYS_ON to (stringResource(R.string.mode_always_on) to stringResource(R.string.mode_always_on_desc)),
+        ServiceMode.ALWAYS_ON_CHARGING to (stringResource(R.string.mode_always_on_charging) to stringResource(R.string.mode_always_on_charging_desc)),
         ServiceMode.CHARGING_ONLY to (stringResource(R.string.mode_charging_only) to stringResource(R.string.mode_charging_only_desc))
     )
     options.forEach { (mode, textPair) ->

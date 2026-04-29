@@ -61,6 +61,7 @@ data class GlyphSettings(
     val fillDirection: FillDirection = FillDirection.ABC,
     val selectedZone: GlyphZone = GlyphZone.ZONE_A,
     val animationMode: AnimationMode = AnimationMode.NONE,
+    val chargingAnimationMode: AnimationMode = AnimationMode.NONE,
     val language: AppLanguage = AppLanguage.SYSTEM,
     val brightness: Int = 100,
     val animationSpeed: Int = 100,
@@ -75,5 +76,6 @@ data class GlyphSettings(
 enum class ServiceMode {
     MANUAL,
     ALWAYS_ON,
+    ALWAYS_ON_CHARGING,
     CHARGING_ONLY
 }

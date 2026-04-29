@@ -25,6 +25,7 @@ class SettingsStore(private val context: Context) {
         private val FILL_DIRECTION = stringPreferencesKey("fill_direction")
         private val SELECTED_ZONE = stringPreferencesKey("selected_zone")
         private val ANIMATION_MODE = stringPreferencesKey("animation_mode")
+        private val CHARGING_ANIMATION_MODE = stringPreferencesKey("charging_animation_mode")
         private val LANGUAGE = stringPreferencesKey("language")
         private val BRIGHTNESS = intPreferencesKey("brightness")
         private val ANIMATION_SPEED = intPreferencesKey("animation_speed")
@@ -45,6 +46,8 @@ class SettingsStore(private val context: Context) {
             selectedZone = prefs[SELECTED_ZONE]?.let { runCatching { GlyphZone.valueOf(it) }.getOrNull() }
                 ?: GlyphZone.ZONE_A,
             animationMode = prefs[ANIMATION_MODE]?.let { runCatching { AnimationMode.valueOf(it) }.getOrNull() }
+                ?: AnimationMode.NONE,
+            chargingAnimationMode = prefs[CHARGING_ANIMATION_MODE]?.let { runCatching { AnimationMode.valueOf(it) }.getOrNull() }
                 ?: AnimationMode.NONE,
             language = prefs[LANGUAGE]?.let { code ->
                 AppLanguage.entries.find { it.code == code }
@@ -78,6 +81,10 @@ class SettingsStore(private val context: Context) {
 
     suspend fun updateAnimationMode(mode: AnimationMode) {
         context.dataStore.edit { it[ANIMATION_MODE] = mode.name }
+    }
+
+    suspend fun updateChargingAnimationMode(mode: AnimationMode) {
+        context.dataStore.edit { it[CHARGING_ANIMATION_MODE] = mode.name }
     }
 
     suspend fun updateLanguage(language: AppLanguage) {

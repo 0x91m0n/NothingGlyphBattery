@@ -109,6 +109,7 @@ class MainActivity : ComponentActivity() {
                     onUpdateFillDirection = { scope.launch { settingsStore.updateFillDirection(it) } },
                     onUpdateZone = { scope.launch { settingsStore.updateSelectedZone(it) } },
                     onUpdateAnimationMode = { scope.launch { settingsStore.updateAnimationMode(it) } },
+                    onUpdateChargingAnimationMode = { scope.launch { settingsStore.updateChargingAnimationMode(it) } },
                     onUpdateLanguage = { lang ->
                         scope.launch {
                             settingsStore.updateLanguage(lang)

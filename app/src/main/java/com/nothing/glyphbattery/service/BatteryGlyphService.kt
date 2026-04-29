@@ -117,6 +117,14 @@ class BatteryGlyphService : Service() {
         }
     }
 
+    private fun effectiveSettings(isCharging: Boolean): GlyphSettings {
+        return if (currentSettings.serviceMode == ServiceMode.ALWAYS_ON_CHARGING && isCharging) {
+            currentSettings.copy(animationMode = currentSettings.chargingAnimationMode)
+        } else {
+            currentSettings
+        }
+    }
+
     private fun applyCurrentState() {
         val batteryIntent = registerReceiver(null, IntentFilter(Intent.ACTION_BATTERY_CHANGED))
         val plugged = batteryIntent?.getIntExtra(BatteryManager.EXTRA_PLUGGED, 0) ?: 0
@@ -133,7 +141,7 @@ class BatteryGlyphService : Service() {
         } else if (currentSettings.serviceMode == ServiceMode.CHARGING_ONLY && !isCharging) {
             glyphController.turnOff()
         } else {
-            glyphController.updateBatteryGlyph(percent, currentSettings)
+            glyphController.updateBatteryGlyph(percent, effectiveSettings(isCharging))
         }
     }
 
@@ -194,7 +202,7 @@ class BatteryGlyphService : Service() {
         } else if (currentSettings.serviceMode == ServiceMode.CHARGING_ONLY && !isCharging) {
             glyphController.turnOff()
         } else {
-            glyphController.updateBatteryGlyph(percent, currentSettings)
+            glyphController.updateBatteryGlyph(percent, effectiveSettings(isCharging))
         }
 
         previousBatteryPercent = percent

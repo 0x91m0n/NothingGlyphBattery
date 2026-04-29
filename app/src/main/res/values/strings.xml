@@ -24,8 +24,11 @@
     <string name="mode_manual_desc">Start and stop with the button</string>
     <string name="mode_always_on">Always On</string>
     <string name="mode_always_on_desc">Auto-start on boot, runs continuously</string>
+    <string name="mode_always_on_charging">Always On / Charging</string>
+    <string name="mode_always_on_charging_desc">Always on, separate animation while charging</string>
     <string name="mode_charging_only">Charging Only</string>
     <string name="mode_charging_only_desc">Starts when plugged in, stops when unplugged</string>
+    <string name="charging_animation_mode">Animation (Charging)</string>
 
     <!-- Fill Modes -->
     <string name="mode_progressive">Progressive Fill</string>
