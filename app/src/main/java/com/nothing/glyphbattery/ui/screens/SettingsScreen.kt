@@ -171,18 +171,10 @@ fun SettingsScreen(
             SettingsSection(title = stringResource(R.string.auto_off_timer)) {
                 AutoOffTimerSelector(
                     selected = settings.autoOffTimer,
-                    onSelect = onUpdateAutoOffTimer
+                    customMinutes = settings.customAutoOffMinutes,
+                    onSelect = onUpdateAutoOffTimer,
+                    onUpdateCustomMinutes = onUpdateCustomAutoOffMinutes
                 )
-                AnimatedVisibility(
-                    visible = settings.autoOffTimer == AutoOffTimer.CUSTOM,
-                    enter = expandVertically() + fadeIn(),
-                    exit = shrinkVertically() + fadeOut()
-                ) {
-                    CustomTimerInput(
-                        minutes = settings.customAutoOffMinutes,
-                        onUpdate = onUpdateCustomAutoOffMinutes
-                    )
-                }
             }
 
             // Charge Complete
@@ -500,9 +492,15 @@ fun AnimationSpeedSlider(speed: Int, onUpdate: (Int) -> Unit) {
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun AutoOffTimerSelector(selected: AutoOffTimer, onSelect: (AutoOffTimer) -> Unit) {
-    val options = listOf(
+fun AutoOffTimerSelector(
+    selected: AutoOffTimer,
+    customMinutes: Int,
+    onSelect: (AutoOffTimer) -> Unit,
+    onUpdateCustomMinutes: (Int) -> Unit
+) {
+    val presets = listOf(
         AutoOffTimer.OFF to stringResource(R.string.timer_off),
         AutoOffTimer.MIN_15 to stringResource(R.string.timer_15),
         AutoOffTimer.MIN_30 to stringResource(R.string.timer_30),
@@ -510,49 +508,127 @@ fun AutoOffTimerSelector(selected: AutoOffTimer, onSelect: (AutoOffTimer) -> Uni
         AutoOffTimer.HOUR_2 to stringResource(R.string.timer_120),
         AutoOffTimer.CUSTOM to stringResource(R.string.timer_custom)
     )
-    options.forEach { (timer, label) ->
-        SelectableRow(
-            label = label,
-            isSelected = selected == timer,
-            onClick = { onSelect(timer) }
-        )
+    var expanded by remember { mutableStateOf(false) }
+    var showCustomInput by remember { mutableStateOf(selected == AutoOffTimer.CUSTOM) }
+    var customText by remember(customMinutes) { mutableStateOf(customMinutes.toString()) }
+
+    val customLabel = stringResource(R.string.timer_custom)
+    val selectedLabel = if (selected == AutoOffTimer.CUSTOM) {
+        "$customLabel ($customMinutes ${stringResource(R.string.timer_custom_hint).lowercase()})"
+    } else {
+        presets.firstOrNull { it.first == selected }?.second ?: ""
     }
-}
 
-@Composable
-fun CustomTimerInput(minutes: Int, onUpdate: (Int) -> Unit) {
-    var text by remember(minutes) { mutableStateOf(minutes.toString()) }
-
-    Spacer(modifier = Modifier.height(8.dp))
-    OutlinedTextField(
-        value = text,
-        onValueChange = { newValue ->
-            val filtered = newValue.filter { it.isDigit() }.take(4)
-            text = filtered
-            filtered.toIntOrNull()?.let { mins ->
-                if (mins in 1..1440) onUpdate(mins)
+    Column {
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = { expanded = it }
+        ) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .clickable { expanded = true }
+                    .background(NothingMediumGray)
+                    .padding(horizontal = 14.dp, vertical = 14.dp)
+                    .menuAnchor(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(
+                    text = selectedLabel,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = NothingWhite
+                )
+                Icon(
+                    Icons.Default.KeyboardArrowDown,
+                    contentDescription = null,
+                    tint = NothingLightGray
+                )
             }
-        },
-        label = {
-            Text(
-                stringResource(R.string.timer_custom_hint),
-                style = MaterialTheme.typography.bodySmall
-            )
-        },
-        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-        singleLine = true,
-        modifier = Modifier.fillMaxWidth(),
-        colors = OutlinedTextFieldDefaults.colors(
-            focusedTextColor = NothingWhite,
-            unfocusedTextColor = NothingWhite,
-            cursorColor = NothingWhite,
-            focusedBorderColor = NothingWhite,
-            unfocusedBorderColor = NothingLightGray,
-            focusedLabelColor = NothingWhite,
-            unfocusedLabelColor = NothingLightGray
-        ),
-        shape = RoundedCornerShape(14.dp)
-    )
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.background(NothingDarkGray)
+            ) {
+                presets.forEach { (timer, label) ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                text = label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = if (selected == timer) NothingWhite else NothingLightGray
+                            )
+                        },
+                        onClick = {
+                            onSelect(timer)
+                            showCustomInput = timer == AutoOffTimer.CUSTOM
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = showCustomInput || selected == AutoOffTimer.CUSTOM,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Spacer(modifier = Modifier.height(8.dp))
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = customText,
+                    onValueChange = { newValue ->
+                        customText = newValue.filter { it.isDigit() }.take(4)
+                    },
+                    label = {
+                        Text(
+                            stringResource(R.string.timer_custom_hint),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = NothingWhite,
+                        unfocusedTextColor = NothingWhite,
+                        cursorColor = NothingWhite,
+                        focusedBorderColor = NothingWhite,
+                        unfocusedBorderColor = NothingLightGray,
+                        focusedLabelColor = NothingWhite,
+                        unfocusedLabelColor = NothingLightGray
+                    ),
+                    shape = RoundedCornerShape(14.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(
+                    onClick = {
+                        customText.toIntOrNull()?.let { mins ->
+                            if (mins in 1..1440) {
+                                onUpdateCustomMinutes(mins)
+                                onSelect(AutoOffTimer.CUSTOM)
+                            }
+                        }
+                    },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(NothingMediumGray)
+                ) {
+                    Icon(
+                        Icons.Default.Check,
+                        contentDescription = "Apply",
+                        tint = NothingWhite
+                    )
+                }
+            }
+        }
+    }
 }
 
 @Composable
