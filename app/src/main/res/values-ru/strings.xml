@@ -3,9 +3,8 @@
     <string name="app_name">Glyph Батарея</string>
 
     <!-- Main Screen -->
-    <string name="battery_level">Батарея: %1$d%%</string>
-    <string name="service_running">Сервис запущен</string>
-    <string name="service_stopped">Сервис остановлен</string>
+    <string name="service_working">Работает</string>
+    <string name="service_not_working">Не работает</string>
     <string name="start_service">Запустить</string>
     <string name="stop_service">Остановить</string>
     <string name="charging">Заряжается</string>
@@ -16,32 +15,25 @@
     <string name="language">Язык</string>
     <string name="fill_mode">Режим заполнения</string>
     <string name="glyph_zone">Зона Glyph</string>
-    <string name="select_language">Выберите язык</string>
-    <string name="select_fill_mode">Выберите режим заполнения</string>
-    <string name="select_glyph">Выберите зону Glyph</string>
     <string name="service_mode">Режим работы</string>
     <string name="mode_manual">Вручную</string>
     <string name="mode_manual_desc">Запуск и остановка кнопкой</string>
     <string name="mode_always_on">Всегда</string>
     <string name="mode_always_on_desc">Автозапуск при загрузке, работает постоянно</string>
     <string name="mode_always_on_charging">Всегда вкл / Зарядка</string>
-    <string name="mode_always_on_charging_desc">Всегда включён, отдельная анимация при зарядке</string>
+    <string name="mode_always_on_charging_desc">Всегда включён, отдельный профиль без зарядки</string>
     <string name="mode_charging_only">При зарядке</string>
-    <string name="mode_charging_only_desc">Включается при подключении, выключается при отключении</string>
-    <string name="charging_animation_mode">Анимация (Батарея)</string>
-    <string name="battery_brightness">Яркость (Батарея)</string>
-    <string name="battery_fill_mode">Режим заполнения (Батарея)</string>
-    <string name="battery_glyph_zone">Зона Glyph (Батарея)</string>
+    <string name="mode_charging_only_desc">Светит только при зарядке, оставаясь готовым после отключения</string>
+    <string name="charging_animation_mode">Анимация (Без зарядки)</string>
+    <string name="battery_brightness">Яркость (Без зарядки)</string>
+    <string name="battery_fill_mode">Режим заполнения (Без зарядки)</string>
+    <string name="battery_glyph_zone">Зона Glyph (Без зарядки)</string>
 
     <!-- Fill Modes -->
-    <string name="mode_progressive">Последовательное заполнение</string>
-    <string name="mode_progressive_desc">Зоны заполняются одна за другой по мере зарядки</string>
     <string name="mode_circular">Зона за зоной</string>
     <string name="mode_circular_desc">Заполняет зоны одну за другой по мере зарядки</string>
     <string name="mode_single">Одиночный Glyph</string>
-    <string name="mode_single_desc">Одна зона светится с яркостью, соответствующей уровню заряда</string>
-    <string name="mode_all">Все зоны</string>
-    <string name="mode_all_desc">A и B включены, C показывает прогресс</string>
+    <string name="mode_single_desc">Одна зона показывает уровень заряда</string>
 
     <!-- Animation Modes -->
     <string name="animation_mode">Анимация</string>
@@ -58,9 +50,18 @@
     <string name="anim_smooth_fill">Плавное заполнение</string>
     <string name="anim_smooth_fill_desc">Светодиоды загораются один за другим</string>
 
+    <string name="anim_progress_title">Заполнение + следующий LED</string>
+    <string name="anim_progress_desc" formatted="false">Набранные LED горят постоянно. Анимируется только следующий, продвигаясь с реальным уровнем заряда. В одной зоне: при 50% из 20 LED горят 10, а 11-й анимируется. Во всех зонах при 50% горят 18 из 36 LED, а 19-й анимируется; выбранное направление сохраняется. При 0% всё погашено, при 100% всё горит постоянно, если действие на лимите заряда не имеет приоритета. Волна, Песочные часы и Плавное заполнение меняют яркость следующего LED, не затрагивая заполненную часть.</string>
+    <string name="anim_progress_breathing">Заполнение + Дыхание</string>
+    <string name="anim_progress_blinking">Заполнение + Мигание</string>
+    <string name="anim_progress_wave">Заполнение + Волна</string>
+    <string name="anim_progress_hourglass">Заполнение + Песочные часы</string>
+    <string name="anim_progress_smooth_fill">Заполнение + Плавное заполнение</string>
+
     <!-- Auto-off Timer -->
     <string name="auto_off_timer">Таймер отключения</string>
     <string name="timer_off">Выкл</string>
+    <string name="timer_5">5 минут</string>
     <string name="timer_15">15 минут</string>
     <string name="timer_30">30 минут</string>
     <string name="timer_60">1 час</string>
@@ -84,13 +85,37 @@
     <!-- Charge Complete -->
     <string name="charge_complete">При полной зарядке</string>
     <string name="charge_complete_off">Выключить LED</string>
-    <string name="charge_complete_off_desc">Все глифы выключаются при 100%</string>
+    <string name="charge_complete_off_desc">Все глифы выключаются на выбранном лимите зарядки</string>
     <string name="charge_complete_single">Одна зона на 10%</string>
     <string name="charge_complete_single_desc">Выбранная зона остаётся на низкой яркости</string>
     <string name="charge_complete_all">Все зоны на 10%</string>
     <string name="charge_complete_all_desc">Все зоны остаются на низкой яркости</string>
-    <string name="charge_complete_zone">Зона для 100%</string>
+    <string name="charge_complete_zone">Зона на лимите зарядки</string>
     <string name="charge_full_threshold">Лимит зарядки</string>
+    <string name="charge_complete_timer">Погасить Glyph полной зарядки через</string>
+
+    <!-- Скрытая диагностика -->
+    <string name="developer_mode">Режим разработчика</string>
+    <string name="open_diagnostics">Открыть диагностику</string>
+    <string name="diagnostics">Диагностика</string>
+    <string name="diagnostic_service">Служба</string>
+    <string name="diagnostic_sdk">Сессия SDK</string>
+    <string name="diagnostic_target">Рассчитанная цель</string>
+    <string name="diagnostic_block_reason">Причина Off</string>
+    <string name="diagnostic_battery">Батарея</string>
+    <string name="diagnostic_general_timer">Общий таймер</string>
+    <string name="diagnostic_charge_timer">Таймер полной зарядки</string>
+    <string name="diagnostic_last_render">Последний кадр</string>
+    <string name="diagnostic_errors">Ошибки</string>
+    <string name="diagnostic_events">Последние события процесса</string>
+    <string name="diagnostic_none">Нет</string>
+    <string name="diagnostic_expired">Истёк</string>
+    <string name="diagnostic_inactive">Не активен</string>
+    <string name="glyph_reconnect">Переподключить Glyph</string>
+    <string name="zone_self_test">Тест зон A / B / C</string>
+    <string name="copy_report">Копировать отчёт</string>
+    <string name="report_copied">Диагностический отчёт скопирован</string>
+    <string name="start_service_for_diagnostics">Запустите службу для действий с Glyph</string>
 
     <!-- Glyph Zones (Phone 3a) -->
     <string name="zone_a">Зона A 11 LED — вертикальная полоса</string>
@@ -102,13 +127,38 @@
     <string name="lang_russian">Русский</string>
     <string name="lang_system">Системный</string>
 
+    <!-- Работа в фоне -->
+    <string name="back">Назад</string>
+    <string name="background_title">Работа в фоне</string>
+    <string name="background_open">Проверить фоновые настройки</string>
+    <string name="background_short">Ограничения батареи и восстановление после остановки процесса Android.</string>
+    <string name="background_intro">Обычные разрешения не снимают ограничения батареи. Проверки обновляются после возвращения из настроек.</string>
+    <string name="background_checks">На этом телефоне</string>
+    <string name="background_service_active">Фоновая служба: запущена</string>
+    <string name="background_service_stopped">Фоновая служба: остановлена</string>
+    <string name="background_exempt">Оптимизация батареи: отключена для приложения</string>
+    <string name="background_not_exempt">Оптимизация батареи: ещё включена</string>
+    <string name="background_restricted">Фоновая работа: ограничена Android</string>
+    <string name="background_unrestricted">Android не сообщает об ограничении фоновой работы</string>
+    <string name="background_saver_on">Энергосбережение: включено</string>
+    <string name="background_saver_off">Энергосбережение: выключено</string>
+    <string name="background_recovery_on">Проверка восстановления: назначена (через 15 минут или позже)</string>
+    <string name="background_recovery_off">Проверка восстановления: не назначена; запустите службу</string>
+    <string name="background_allow">Разрешить без оптимизации батареи</string>
+    <string name="background_app_settings">Открыть настройки приложения</string>
+    <string name="background_battery_settings">Открыть энергосбережение</string>
+    <string name="background_guide_title">Настройка Nothing OS</string>
+    <string name="background_guide">1. Нажмите «Разрешить без оптимизации батареи» и подтвердите системный запрос.\n\n2. В настройках приложения откройте «Использование батареи» или «Батарея», разрешите работу в фоне и выберите «Без ограничений», если такой пункт есть. Названия зависят от версии Nothing OS.\n\n3. На время проверки выключите энергосбережение. Если в телефоне есть оптимизация сна или управление автозапуском, разрешите там Glyph Battery. Надёжно проверить эти настройки производителя из приложения нельзя.\n\n4. Для запуска после перезагрузки выберите «Всегда», «Всегда вкл / Зарядка» или «При зарядке». Нажмите «Запустить», заблокируйте телефон и проверьте LED.</string>
+    <string name="background_limits_title">Что всё ещё решает Android</string>
+    <string name="background_limits">Восстановление не мгновенное и не гарантированное: Android назначает проверку раз в 15 минут или реже. Для запуска из фона нужны отключённая оптимизация батареи и отсутствие фоновых ограничений. Открытие приложения также восстанавливает запрошенную сессию.\n\nКнопка «Остановить» отменяет восстановление. Принудительная остановка и кнопка остановки в системном списке активных приложений учитываются: откройте приложение и нажмите «Запустить» снова. После перезагрузки запускаются автоматические режимы, но не ручной. Гарантировать непрерывную работу на любой прошивке невозможно.</string>
+    <string name="background_dark_title">LED погасли — не всегда вылет</string>
+    <string name="background_dark">Проверьте таймер отключения, действие на лимите заряда, таймер полной зарядки и режим «При зарядке». Они специально гасят LED, оставляя службу включённой.\n\nЕсли служба запущена, а Glyph не светится, проверьте настройки Glyph телефона и встроенный световой эффект. Если он тоже не работает, перезагрузите телефон. Для подробностей SDK удерживайте заголовок «Настройки» и включите диагностику.</string>
+    <string name="background_start_failed">Android не разрешил запуск. Откройте Glyph Battery, проверьте фоновые настройки и нажмите «Запустить».</string>
+    <string name="background_settings_unavailable">Этот раздел недоступен. Откройте настройки телефона → Приложения → Glyph Battery → Батарея.</string>
+    <string name="background_copy_help">При подключении зарядки служба автоматически пересоздаёт Glyph-сессию через секунду. Если LED снова не загорятся, сначала скопируйте отчёт, затем переподключите Glyph в диагностике. Отчёт включает ограничения Android, причину последнего завершения процесса и последние 200 событий. Журнал хранится только на телефоне и переживает перезапуск; ключи и личные данные не записываются.</string>
+
     <!-- Notifications -->
     <string name="notification_channel_name">Сервис Glyph Батареи</string>
-    <string name="notification_title">Glyph Батарея активна</string>
-    <string name="notification_text">Мониторинг батареи: %1$d%%</string>
+    <string name="notification_channel_description">Поддерживает отображение заряда на интерфейсе Glyph</string>
 
-    <!-- About -->
-    <string name="about">О приложении</string>
-    <string name="about_text">Glyph Батарея для Nothing Phone 3a.\nУправление Glyph LED на основе уровня заряда.</string>
-    <string name="version">Версия %1$s</string>
 </resources>

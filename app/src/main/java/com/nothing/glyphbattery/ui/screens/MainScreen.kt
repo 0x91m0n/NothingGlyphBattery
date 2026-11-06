@@ -17,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
@@ -30,20 +29,20 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.nothing.glyphbattery.R
-import com.nothing.glyphbattery.model.GlyphSettings
+import com.nothing.glyphbattery.service.BatteryGlyphServiceStatus
+import com.nothing.glyphbattery.service.ServiceHealth
 import com.nothing.glyphbattery.ui.theme.*
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-@Suppress("UNUSED_PARAMETER")
 fun MainScreen(
     batteryLevel: Int,
     isCharging: Boolean,
-    isServiceRunning: Boolean,
-    settings: GlyphSettings,
+    serviceStatus: BatteryGlyphServiceStatus,
     onStartService: () -> Unit,
     onStopService: () -> Unit,
-    onNavigateSettings: () -> Unit
+    onNavigateSettings: () -> Unit,
+    onOpenBackground: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -113,15 +112,20 @@ fun MainScreen(
             // Status row
             StatusInfo(
                 isCharging = isCharging,
-                isServiceRunning = isServiceRunning
+                serviceStatus = serviceStatus
             )
 
             // Start/Stop button with animation
-            ServiceButton(
-                isRunning = isServiceRunning,
-                onStart = onStartService,
-                onStop = onStopService
-            )
+            Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                ServiceButton(
+                    isRunning = serviceStatus.isRunning,
+                    onStart = onStartService,
+                    onStop = onStopService
+                )
+                TextButton(onClick = onOpenBackground, modifier = Modifier.heightIn(min = 48.dp)) {
+                    Text(stringResource(R.string.background_title), color = NothingLightGray)
+                }
+            }
         }
         }
     }
@@ -210,11 +214,12 @@ private fun BatteryRing(batteryLevel: Int, isCharging: Boolean) {
 }
 
 @Composable
-private fun StatusInfo(isCharging: Boolean, isServiceRunning: Boolean) {
+private fun StatusInfo(isCharging: Boolean, serviceStatus: BatteryGlyphServiceStatus) {
     Column(horizontalAlignment = Alignment.CenterHorizontally) {
         Row(verticalAlignment = Alignment.CenterVertically) {
             // Pulsing dot
-            val dotColor = if (isServiceRunning) NothingGreen else NothingRed
+            val isWorking = serviceStatus.health == ServiceHealth.READY
+            val dotColor = if (isWorking) NothingGreen else NothingRed
             val infiniteTransition = rememberInfiniteTransition(label = "dot")
             val dotAlpha by infiniteTransition.animateFloat(
                 initialValue = 0.4f,
@@ -228,13 +233,15 @@ private fun StatusInfo(isCharging: Boolean, isServiceRunning: Boolean) {
             Box(
                 modifier = Modifier
                     .size(8.dp)
-                    .alpha(if (isServiceRunning) dotAlpha else 1f)
+                    .alpha(if (serviceStatus.isRunning) dotAlpha else 1f)
                     .clip(CircleShape)
                     .background(dotColor)
             )
             Spacer(modifier = Modifier.width(8.dp))
             Text(
-                text = (if (isServiceRunning) stringResource(R.string.service_running) else stringResource(R.string.service_stopped)).uppercase(),
+                text = stringResource(
+                    if (isWorking) R.string.service_working else R.string.service_not_working
+                ).uppercase(),
                 style = MaterialTheme.typography.labelMedium,
                 color = NothingLightGray
             )
@@ -278,38 +285,11 @@ private fun ServiceButton(isRunning: Boolean, onStart: () -> Unit, onStop: () ->
         label = "btnBorder"
     ) { running -> if (running) 0.4f else 0f }
 
-    val scale by transition.animateFloat(
-        transitionSpec = {
-            if (false isTransitioningTo true) {
-                keyframes {
-                    durationMillis = 400
-                    1f at 0
-                    0.92f at 100
-                    1.04f at 250
-                    1f at 400
-                }
-            } else {
-                keyframes {
-                    durationMillis = 400
-                    1f at 0
-                    0.95f at 120
-                    1.06f at 280
-                    1f at 400
-                }
-            }
-        },
-        label = "btnScale"
-    ) { 1f }
-
     Button(
         onClick = { if (isRunning) onStop() else onStart() },
         modifier = Modifier
             .fillMaxWidth()
             .height(54.dp)
-            .graphicsLayer {
-                scaleX = scale
-                scaleY = scale
-            }
             .then(
                 if (borderAlpha > 0f) Modifier.border(
                     1.dp, NothingLightGray.copy(alpha = borderAlpha), RoundedCornerShape(50)

@@ -5,3 +5,7 @@ local.properties
 /app/build
 release-key.jks
 /.vscode
+/.sharrowkin
+AGENTS.md
+PROJECT_CONTEXT.md
+/scripts

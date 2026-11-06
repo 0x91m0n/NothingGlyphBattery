@@ -3,9 +3,8 @@
     <string name="app_name">Glyph Battery</string>
 
     <!-- Main Screen -->
-    <string name="battery_level">Battery: %1$d%%</string>
-    <string name="service_running">Service is running</string>
-    <string name="service_stopped">Service is stopped</string>
+    <string name="service_working">Working</string>
+    <string name="service_not_working">Not working</string>
     <string name="start_service">Start</string>
     <string name="stop_service">Stop</string>
     <string name="charging">Charging</string>
@@ -16,32 +15,25 @@
     <string name="language">Language</string>
     <string name="fill_mode">Fill Mode</string>
     <string name="glyph_zone">Glyph Zone</string>
-    <string name="select_language">Select Language</string>
-    <string name="select_fill_mode">Select Fill Mode</string>
-    <string name="select_glyph">Select Glyph Zone</string>
     <string name="service_mode">Service Mode</string>
     <string name="mode_manual">Manual</string>
     <string name="mode_manual_desc">Start and stop with the button</string>
     <string name="mode_always_on">Always On</string>
     <string name="mode_always_on_desc">Auto-start on boot, runs continuously</string>
     <string name="mode_always_on_charging">Always On / Charging</string>
-    <string name="mode_always_on_charging_desc">Always on, separate animation while charging</string>
+    <string name="mode_always_on_charging_desc">Always on, with a separate profile while unplugged</string>
     <string name="mode_charging_only">Charging Only</string>
-    <string name="mode_charging_only_desc">Starts when plugged in, stops when unplugged</string>
-    <string name="charging_animation_mode">Animation (Battery)</string>
-    <string name="battery_brightness">Brightness (Battery)</string>
-    <string name="battery_fill_mode">Fill Mode (Battery)</string>
-    <string name="battery_glyph_zone">Glyph Zone (Battery)</string>
+    <string name="mode_charging_only_desc">Renders only while plugged in and stays ready when unplugged</string>
+    <string name="charging_animation_mode">Animation (Unplugged)</string>
+    <string name="battery_brightness">Brightness (Unplugged)</string>
+    <string name="battery_fill_mode">Fill Mode (Unplugged)</string>
+    <string name="battery_glyph_zone">Glyph Zone (Unplugged)</string>
 
     <!-- Fill Modes -->
-    <string name="mode_progressive">Progressive Fill</string>
-    <string name="mode_progressive_desc">Fills zones one by one as battery charges</string>
     <string name="mode_circular">Zone-by-Zone Fill</string>
     <string name="mode_circular_desc">Fills zones one by one as battery charges</string>
     <string name="mode_single">Single Glyph</string>
-    <string name="mode_single_desc">One zone pulses with brightness matching battery level</string>
-    <string name="mode_all">All Zones</string>
-    <string name="mode_all_desc">A and B toggled on, C shows progress bar</string>
+    <string name="mode_single_desc">Uses one zone to show the battery level</string>
 
     <!-- Animation Modes -->
     <string name="animation_mode">Animation</string>
@@ -58,9 +50,18 @@
     <string name="anim_smooth_fill">Smooth Fill</string>
     <string name="anim_smooth_fill_desc">LEDs light up one by one, then restart</string>
 
+    <string name="anim_progress_title">Filled LEDs + next LED</string>
+    <string name="anim_progress_desc" formatted="false">Completed LEDs stay on. Only the next LED animates and advances with the actual battery level. With one zone: at 50% of 20 LEDs, 10 stay on and LED 11 animates. Across all zones, 50% means 18 of 36 LEDs stay on and LED 19 animates; the selected direction is respected. At 0% all are off; at 100% all are steady unless the charge-limit action takes priority. Wave, Hourglass and Smooth Fill use brightness on the next LED instead of moving across the filled part.</string>
+    <string name="anim_progress_breathing">Filled + Breathing</string>
+    <string name="anim_progress_blinking">Filled + Blinking</string>
+    <string name="anim_progress_wave">Filled + Wave</string>
+    <string name="anim_progress_hourglass">Filled + Hourglass</string>
+    <string name="anim_progress_smooth_fill">Filled + Smooth Fill</string>
+
     <!-- Auto-off Timer -->
     <string name="auto_off_timer">Auto-off Timer</string>
     <string name="timer_off">Off</string>
+    <string name="timer_5">5 minutes</string>
     <string name="timer_15">15 minutes</string>
     <string name="timer_30">30 minutes</string>
     <string name="timer_60">1 hour</string>
@@ -84,13 +85,37 @@
     <!-- Charge Complete -->
     <string name="charge_complete">When Fully Charged</string>
     <string name="charge_complete_off">Turn off LEDs</string>
-    <string name="charge_complete_off_desc">All glyphs turn off at 100%</string>
+    <string name="charge_complete_off_desc">All glyphs turn off at the selected charge limit</string>
     <string name="charge_complete_single">One zone at 10%</string>
     <string name="charge_complete_single_desc">Selected zone stays on at low brightness</string>
     <string name="charge_complete_all">All zones at 10%</string>
     <string name="charge_complete_all_desc">All zones stay on at low brightness</string>
-    <string name="charge_complete_zone">Zone for 100%</string>
+    <string name="charge_complete_zone">Zone at charge limit</string>
     <string name="charge_full_threshold">Charge limit</string>
+    <string name="charge_complete_timer">Turn off full-charge Glyph after</string>
+
+    <!-- Hidden diagnostics -->
+    <string name="developer_mode">Developer mode</string>
+    <string name="open_diagnostics">Open diagnostics</string>
+    <string name="diagnostics">Diagnostics</string>
+    <string name="diagnostic_service">Service</string>
+    <string name="diagnostic_sdk">SDK session</string>
+    <string name="diagnostic_target">Calculated target</string>
+    <string name="diagnostic_block_reason">Off reason</string>
+    <string name="diagnostic_battery">Battery</string>
+    <string name="diagnostic_general_timer">General timer</string>
+    <string name="diagnostic_charge_timer">Full-charge timer</string>
+    <string name="diagnostic_last_render">Last frame</string>
+    <string name="diagnostic_errors">Errors</string>
+    <string name="diagnostic_events">Last process events</string>
+    <string name="diagnostic_none">None</string>
+    <string name="diagnostic_expired">Expired</string>
+    <string name="diagnostic_inactive">Inactive</string>
+    <string name="glyph_reconnect">Reconnect Glyph</string>
+    <string name="zone_self_test">Test zones A / B / C</string>
+    <string name="copy_report">Copy report</string>
+    <string name="report_copied">Diagnostic report copied</string>
+    <string name="start_service_for_diagnostics">Start the service to use Glyph actions</string>
 
     <!-- Glyph Zones (Phone 3a) -->
     <string name="zone_a">Zone A 11 LEDs — vertical strip</string>
@@ -102,13 +127,38 @@
     <string name="lang_russian">Русский</string>
     <string name="lang_system">System Default</string>
 
+    <!-- Background setup -->
+    <string name="back">Back</string>
+    <string name="background_title">Background operation</string>
+    <string name="background_open">Check background settings</string>
+    <string name="background_short">Check battery restrictions and recovery after Android stops the process.</string>
+    <string name="background_intro">App permissions alone do not remove battery restrictions. These checks refresh when you return from Settings.</string>
+    <string name="background_checks">On this phone</string>
+    <string name="background_service_active">Foreground service: running</string>
+    <string name="background_service_stopped">Foreground service: stopped</string>
+    <string name="background_exempt">Battery optimization: disabled for this app</string>
+    <string name="background_not_exempt">Battery optimization: still enabled</string>
+    <string name="background_restricted">Background use: restricted by Android</string>
+    <string name="background_unrestricted">Android reports no background restriction</string>
+    <string name="background_saver_on">Battery Saver: on</string>
+    <string name="background_saver_off">Battery Saver: off</string>
+    <string name="background_recovery_on">Recovery check: scheduled (15 minutes or later)</string>
+    <string name="background_recovery_off">Recovery check: not scheduled; start the service</string>
+    <string name="background_allow">Allow without battery optimization</string>
+    <string name="background_app_settings">Open app settings</string>
+    <string name="background_battery_settings">Open Battery Saver</string>
+    <string name="background_guide_title">Setup for Nothing OS</string>
+    <string name="background_guide">1. Tap “Allow without battery optimization” and confirm the Android dialog.\n\n2. In app settings, open “App battery usage” or “Battery”, allow background use and select “Unrestricted” if available. Names vary by Nothing OS version.\n\n3. Turn off Battery Saver while testing. If your phone offers sleep optimization or auto-start controls, allow Glyph Battery there too. Android does not expose a reliable check for those vendor settings.\n\n4. Choose “Always On”, “Always On / Charging” or “Charging Only” for startup after reboot. Tap Start, lock the phone and check the LEDs.</string>
+    <string name="background_limits_title">What Android still controls</string>
+    <string name="background_limits">Recovery is best effort, not immediate: Android schedules a check every 15 minutes or later. Background recovery requires disabled battery optimization and no background restriction. Opening the app also restores a requested session.\n\nStop in the app cancels recovery. Force stop and the system Active apps Stop button are respected; open the app and tap Start again. A reboot starts automatic modes, not Manual. No app can guarantee survival on every firmware.</string>
+    <string name="background_dark_title">LEDs off does not always mean a crash</string>
+    <string name="background_dark">Check the auto-off timer, charge limit action, full-charge timer and Charging Only mode. These intentionally turn off LEDs while the service stays alive.\n\nIf the service is running but Glyph stays dark, check the phone’s Glyph settings and try a built-in Glyph effect. Restart the phone if built-in effects are also dark. For SDK details, long-press the Settings title to enable Diagnostics.</string>
+    <string name="background_start_failed">Android did not allow the start. Open Glyph Battery, check background settings and tap Start.</string>
+    <string name="background_settings_unavailable">This Settings page is unavailable. Open phone Settings → Apps → Glyph Battery → Battery.</string>
+    <string name="background_copy_help">The running service renews its Glyph session one second after connecting power. If the LEDs stay dark again, copy the report first, then reconnect Glyph in Diagnostics. The report includes Android restrictions, the last process exit reason and the last 200 events. History stays on this phone and survives a restart; no keys or personal data are recorded.</string>
+
     <!-- Notifications -->
     <string name="notification_channel_name">Battery Glyph Service</string>
-    <string name="notification_title">Glyph Battery Active</string>
-    <string name="notification_text">Monitoring battery: %1$d%%</string>
+    <string name="notification_channel_description">Keeps battery rendering active on the Glyph Interface</string>
 
-    <!-- About -->
-    <string name="about">About</string>
-    <string name="about_text">Glyph Battery for Nothing Phone 3a.\nControls Glyph LEDs based on battery level.</string>
-    <string name="version">Version %1$s</string>
 </resources>

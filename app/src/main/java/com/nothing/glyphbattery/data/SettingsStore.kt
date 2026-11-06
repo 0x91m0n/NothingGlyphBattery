@@ -2,23 +2,32 @@ package com.nothing.glyphbattery.data
 
 import android.content.Context
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.handlers.ReplaceFileCorruptionHandler
 import androidx.datastore.preferences.core.*
 import androidx.datastore.preferences.preferencesDataStore
 import com.nothing.glyphbattery.model.AnimationMode
 import com.nothing.glyphbattery.model.AppLanguage
 import com.nothing.glyphbattery.model.AutoOffTimer
 import com.nothing.glyphbattery.model.ChargeCompleteAction
+import com.nothing.glyphbattery.model.ChargeCompleteTimerPreset
+import com.nothing.glyphbattery.model.ChargeCompleteTimerRuntime
 import com.nothing.glyphbattery.model.FillDirection
 import com.nothing.glyphbattery.model.FillMode
 import com.nothing.glyphbattery.model.GlyphSettings
 import com.nothing.glyphbattery.model.GlyphZone
 import com.nothing.glyphbattery.model.ServiceMode
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 
-private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = "glyph_settings")
+private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(
+    name = "glyph_settings",
+    corruptionHandler = ReplaceFileCorruptionHandler { emptyPreferences() }
+)
 
-class SettingsStore(private val context: Context) {
+class SettingsStore(context: Context) {
+    private val context = context.applicationContext
 
     companion object {
         private val FILL_MODE = stringPreferencesKey("fill_mode")
@@ -38,7 +47,13 @@ class SettingsStore(private val context: Context) {
         private val CHARGE_COMPLETE_ACTION = stringPreferencesKey("charge_complete_action")
         private val CHARGE_COMPLETE_ZONE = stringPreferencesKey("charge_complete_zone")
         private val CHARGE_FULL_THRESHOLD = intPreferencesKey("charge_full_threshold")
+        private val CHARGE_COMPLETE_TIMER_PRESET = stringPreferencesKey("charge_complete_timer_preset")
+        private val CUSTOM_CHARGE_COMPLETE_TIMER_MINUTES = intPreferencesKey("custom_charge_complete_timer_minutes")
+        private val CHARGE_COMPLETE_DEADLINE_EPOCH_MILLIS = longPreferencesKey("charge_complete_deadline_epoch_millis")
+        private val CHARGE_COMPLETE_TIMER_CONFIGURATION = stringPreferencesKey("charge_complete_timer_configuration")
+        private val DEVELOPER_MODE = booleanPreferencesKey("developer_mode")
         private val SERVICE_MODE = stringPreferencesKey("service_mode")
+        private val SUPPORTED_CHARGE_THRESHOLDS = setOf(70, 80, 90, 100)
     }
 
     val settings: Flow<GlyphSettings> = context.dataStore.data.map { prefs ->
@@ -51,9 +66,9 @@ class SettingsStore(private val context: Context) {
                 ?: GlyphZone.ZONE_A,
             animationMode = prefs[ANIMATION_MODE]?.let { runCatching { AnimationMode.valueOf(it) }.getOrNull() }
                 ?: AnimationMode.NONE,
-            chargingAnimationMode = prefs[CHARGING_ANIMATION_MODE]?.let { runCatching { AnimationMode.valueOf(it) }.getOrNull() }
+            batteryAnimationMode = prefs[CHARGING_ANIMATION_MODE]?.let { runCatching { AnimationMode.valueOf(it) }.getOrNull() }
                 ?: AnimationMode.NONE,
-            batteryBrightness = prefs[BATTERY_BRIGHTNESS] ?: 100,
+            batteryBrightness = (prefs[BATTERY_BRIGHTNESS] ?: 100).coerceIn(10, 100),
             batteryFillMode = prefs[BATTERY_FILL_MODE]?.let { runCatching { FillMode.valueOf(it) }.getOrNull() }
                 ?: FillMode.CIRCULAR,
             batteryFillDirection = prefs[BATTERY_FILL_DIRECTION]?.let { runCatching { FillDirection.valueOf(it) }.getOrNull() }
@@ -63,20 +78,31 @@ class SettingsStore(private val context: Context) {
             language = prefs[LANGUAGE]?.let { code ->
                 AppLanguage.entries.find { it.code == code }
             } ?: AppLanguage.SYSTEM,
-            brightness = prefs[BRIGHTNESS] ?: 100,
-            animationSpeed = prefs[ANIMATION_SPEED] ?: 100,
+            brightness = (prefs[BRIGHTNESS] ?: 100).coerceIn(10, 100),
+            animationSpeed = (prefs[ANIMATION_SPEED] ?: 100).coerceIn(25, 200),
             autoOffTimer = prefs[AUTO_OFF_TIMER]?.let { runCatching { AutoOffTimer.valueOf(it) }.getOrNull() }
                 ?: AutoOffTimer.OFF,
-            customAutoOffMinutes = prefs[CUSTOM_AUTO_OFF_MINUTES] ?: 45,
+            customAutoOffMinutes = (prefs[CUSTOM_AUTO_OFF_MINUTES] ?: 45).coerceIn(1, 1440),
             chargeCompleteAction = prefs[CHARGE_COMPLETE_ACTION]?.let { runCatching { ChargeCompleteAction.valueOf(it) }.getOrNull() }
                 ?: ChargeCompleteAction.TURN_OFF,
             chargeCompleteZone = prefs[CHARGE_COMPLETE_ZONE]?.let { runCatching { GlyphZone.valueOf(it) }.getOrNull() }
                 ?: GlyphZone.ZONE_A,
-            chargeFullThreshold = prefs[CHARGE_FULL_THRESHOLD] ?: 100,
+            chargeFullThreshold = (prefs[CHARGE_FULL_THRESHOLD] ?: 100)
+                .takeIf(SUPPORTED_CHARGE_THRESHOLDS::contains)
+                ?: 100,
+            chargeCompleteTimerPreset = prefs[CHARGE_COMPLETE_TIMER_PRESET]?.let {
+                runCatching { ChargeCompleteTimerPreset.valueOf(it) }.getOrNull()
+            } ?: ChargeCompleteTimerPreset.OFF,
+            customChargeCompleteTimerMinutes =
+                (prefs[CUSTOM_CHARGE_COMPLETE_TIMER_MINUTES] ?: 30).coerceIn(1, 1440),
             serviceMode = prefs[SERVICE_MODE]?.let { runCatching { ServiceMode.valueOf(it) }.getOrNull() }
                 ?: ServiceMode.MANUAL
         )
-    }
+    }.distinctUntilChanged()
+
+    val developerMode: Flow<Boolean> = context.dataStore.data
+        .map { prefs -> prefs[DEVELOPER_MODE] ?: false }
+        .distinctUntilChanged()
 
     suspend fun updateFillMode(mode: FillMode) {
         context.dataStore.edit { it[FILL_MODE] = mode.name }
@@ -94,7 +120,7 @@ class SettingsStore(private val context: Context) {
         context.dataStore.edit { it[ANIMATION_MODE] = mode.name }
     }
 
-    suspend fun updateChargingAnimationMode(mode: AnimationMode) {
+    suspend fun updateBatteryAnimationMode(mode: AnimationMode) {
         context.dataStore.edit { it[CHARGING_ANIMATION_MODE] = mode.name }
     }
 
@@ -143,7 +169,45 @@ class SettingsStore(private val context: Context) {
     }
 
     suspend fun updateChargeFullThreshold(threshold: Int) {
-        context.dataStore.edit { it[CHARGE_FULL_THRESHOLD] = threshold.coerceIn(50, 100) }
+        val normalized = threshold.takeIf(SUPPORTED_CHARGE_THRESHOLDS::contains) ?: 100
+        context.dataStore.edit { it[CHARGE_FULL_THRESHOLD] = normalized }
+    }
+
+    suspend fun updateChargeCompleteTimerPreset(preset: ChargeCompleteTimerPreset) {
+        context.dataStore.edit { it[CHARGE_COMPLETE_TIMER_PRESET] = preset.name }
+    }
+
+    suspend fun updateCustomChargeCompleteTimerMinutes(minutes: Int) {
+        context.dataStore.edit {
+            it[CUSTOM_CHARGE_COMPLETE_TIMER_MINUTES] = minutes.coerceIn(1, 1440)
+        }
+    }
+
+    suspend fun updateDeveloperMode(enabled: Boolean) {
+        context.dataStore.edit { it[DEVELOPER_MODE] = enabled }
+    }
+
+    suspend fun readChargeCompleteTimerRuntime(): ChargeCompleteTimerRuntime {
+        val prefs = context.dataStore.data.first()
+        return ChargeCompleteTimerRuntime(
+            deadlineEpochMillis = prefs[CHARGE_COMPLETE_DEADLINE_EPOCH_MILLIS] ?: 0L,
+            configurationKey = prefs[CHARGE_COMPLETE_TIMER_CONFIGURATION].orEmpty()
+        )
+    }
+
+    suspend fun saveChargeCompleteTimerRuntime(runtime: ChargeCompleteTimerRuntime) {
+        context.dataStore.edit { prefs ->
+            prefs[CHARGE_COMPLETE_DEADLINE_EPOCH_MILLIS] =
+                runtime.deadlineEpochMillis.coerceAtLeast(0L)
+            prefs[CHARGE_COMPLETE_TIMER_CONFIGURATION] = runtime.configurationKey
+        }
+    }
+
+    suspend fun clearChargeCompleteTimerRuntime() {
+        context.dataStore.edit { prefs ->
+            prefs.remove(CHARGE_COMPLETE_DEADLINE_EPOCH_MILLIS)
+            prefs.remove(CHARGE_COMPLETE_TIMER_CONFIGURATION)
+        }
     }
 
     suspend fun updateServiceMode(mode: ServiceMode) {

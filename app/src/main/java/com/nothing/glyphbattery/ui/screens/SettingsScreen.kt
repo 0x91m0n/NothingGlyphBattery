@@ -4,6 +4,7 @@ import androidx.compose.animation.*
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -28,6 +30,7 @@ import com.nothing.glyphbattery.model.AnimationMode
 import com.nothing.glyphbattery.model.AppLanguage
 import com.nothing.glyphbattery.model.AutoOffTimer
 import com.nothing.glyphbattery.model.ChargeCompleteAction
+import com.nothing.glyphbattery.model.ChargeCompleteTimerPreset
 import com.nothing.glyphbattery.model.FillDirection
 import com.nothing.glyphbattery.model.FillMode
 import com.nothing.glyphbattery.model.GlyphSettings
@@ -44,7 +47,7 @@ fun SettingsScreen(
     onUpdateFillDirection: (FillDirection) -> Unit,
     onUpdateZone: (GlyphZone) -> Unit,
     onUpdateAnimationMode: (AnimationMode) -> Unit,
-    onUpdateChargingAnimationMode: (AnimationMode) -> Unit,
+    onUpdateBatteryAnimationMode: (AnimationMode) -> Unit,
     onUpdateBatteryBrightness: (Int) -> Unit,
     onUpdateBatteryFillMode: (FillMode) -> Unit,
     onUpdateBatteryFillDirection: (FillDirection) -> Unit,
@@ -57,7 +60,15 @@ fun SettingsScreen(
     onUpdateChargeCompleteAction: (ChargeCompleteAction) -> Unit,
     onUpdateChargeCompleteZone: (GlyphZone) -> Unit,
     onUpdateChargeFullThreshold: (Int) -> Unit,
-    onUpdateServiceMode: (ServiceMode) -> Unit
+    onUpdateChargeCompleteTimerPreset: (ChargeCompleteTimerPreset) -> Unit,
+    onUpdateCustomChargeCompleteTimerMinutes: (Int) -> Unit,
+    onUpdateServiceMode: (ServiceMode) -> Unit,
+    developerMode: Boolean,
+    developerSwitchVisible: Boolean,
+    onRevealDeveloperSwitch: () -> Unit,
+    onUpdateDeveloperMode: (Boolean) -> Unit,
+    onOpenDiagnostics: () -> Unit,
+    onOpenBackground: () -> Unit
 ) {
     Scaffold(
         topBar = {
@@ -65,7 +76,10 @@ fun SettingsScreen(
                 title = {
                     Text(
                         stringResource(R.string.settings).uppercase(),
-                        style = MaterialTheme.typography.titleLarge
+                        style = MaterialTheme.typography.titleLarge,
+                        modifier = Modifier.pointerInput(Unit) {
+                            detectTapGestures(onLongPress = { onRevealDeveloperSwitch() })
+                        }
                     )
                 },
                 navigationIcon = {
@@ -93,6 +107,15 @@ fun SettingsScreen(
                 .padding(horizontal = 16.dp, vertical = 8.dp),
             verticalArrangement = Arrangement.spacedBy(12.dp)
         ) {
+            SettingsSection(title = stringResource(R.string.background_title)) {
+                Text(stringResource(R.string.background_short), color = NothingLightGray,
+                    style = MaterialTheme.typography.bodyMedium)
+                Spacer(Modifier.height(8.dp))
+                OutlinedButton(onClick = onOpenBackground, modifier = Modifier.fillMaxWidth()) {
+                    Text(stringResource(R.string.background_open), color = NothingWhite)
+                }
+            }
+
             // Language
             SettingsSection(title = stringResource(R.string.language)) {
                 LanguageSelector(
@@ -183,6 +206,27 @@ fun SettingsScreen(
                     selected = settings.chargeCompleteAction,
                     onSelect = onUpdateChargeCompleteAction
                 )
+                AnimatedVisibility(
+                    visible = settings.chargeCompleteAction != ChargeCompleteAction.TURN_OFF,
+                    enter = expandVertically() + fadeIn(),
+                    exit = shrinkVertically() + fadeOut()
+                ) {
+                    Column {
+                        Spacer(modifier = Modifier.height(12.dp))
+                        Text(
+                            text = stringResource(R.string.charge_complete_timer).uppercase(),
+                            style = MaterialTheme.typography.labelMedium,
+                            color = NothingLightGray,
+                            modifier = Modifier.padding(bottom = 8.dp)
+                        )
+                        ChargeCompleteTimerSelector(
+                            selected = settings.chargeCompleteTimerPreset,
+                            customMinutes = settings.customChargeCompleteTimerMinutes,
+                            onSelect = onUpdateChargeCompleteTimerPreset,
+                            onUpdateCustomMinutes = onUpdateCustomChargeCompleteTimerMinutes
+                        )
+                    }
+                }
             }
 
             // Zone picker for single-zone charge complete
@@ -224,8 +268,8 @@ fun SettingsScreen(
                 Column {
                     SettingsSection(title = stringResource(R.string.charging_animation_mode)) {
                         AnimationModeSelector(
-                            selected = settings.chargingAnimationMode,
-                            onSelect = onUpdateChargingAnimationMode
+                            selected = settings.batteryAnimationMode,
+                            onSelect = onUpdateBatteryAnimationMode
                         )
                     }
                     SettingsSection(title = stringResource(R.string.battery_brightness)) {
@@ -262,6 +306,33 @@ fun SettingsScreen(
                                 selected = settings.batterySelectedZone,
                                 onSelect = onUpdateBatteryZone
                             )
+                        }
+                    }
+                }
+            }
+
+            AnimatedVisibility(
+                visible = developerMode || developerSwitchVisible,
+                enter = expandVertically() + fadeIn(),
+                exit = shrinkVertically() + fadeOut()
+            ) {
+                SettingsSection(title = stringResource(R.string.developer_mode)) {
+                    SettingsToggle(
+                        label = stringResource(R.string.developer_mode),
+                        checked = developerMode,
+                        onToggle = onUpdateDeveloperMode
+                    )
+                    if (developerMode) {
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Button(
+                            onClick = onOpenDiagnostics,
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = NothingWhite,
+                                contentColor = NothingBlack
+                            )
+                        ) {
+                            Text(stringResource(R.string.open_diagnostics).uppercase())
                         }
                     }
                 }
@@ -423,6 +494,26 @@ fun AnimationModeSelector(selected: AnimationMode, onSelect: (AnimationMode) -> 
             isSelected = selected == mode,
             onClick = { onSelect(mode) }
         )
+    }
+    Text(
+        stringResource(R.string.anim_progress_title),
+        style = MaterialTheme.typography.labelMedium,
+        color = NothingWhite,
+        modifier = Modifier.padding(top = 16.dp, bottom = 8.dp)
+    )
+    Text(stringResource(R.string.anim_progress_desc),
+        style = MaterialTheme.typography.bodyMedium, color = NothingLightGray,
+        modifier = Modifier.padding(bottom = 8.dp))
+    val progressOptions = listOf(
+        AnimationMode.PROGRESS_BREATHING to R.string.anim_progress_breathing,
+        AnimationMode.PROGRESS_BLINKING to R.string.anim_progress_blinking,
+        AnimationMode.PROGRESS_WAVE to R.string.anim_progress_wave,
+        AnimationMode.PROGRESS_HOURGLASS to R.string.anim_progress_hourglass,
+        AnimationMode.PROGRESS_SMOOTH_FILL to R.string.anim_progress_smooth_fill
+    )
+    progressOptions.forEach { (mode, label) ->
+        SelectableRow(label = stringResource(label), isSelected = selected == mode,
+            onClick = { onSelect(mode) })
     }
 }
 
@@ -625,6 +716,122 @@ fun AutoOffTimerSelector(
                         contentDescription = "Apply",
                         tint = NothingWhite
                     )
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun ChargeCompleteTimerSelector(
+    selected: ChargeCompleteTimerPreset,
+    customMinutes: Int,
+    onSelect: (ChargeCompleteTimerPreset) -> Unit,
+    onUpdateCustomMinutes: (Int) -> Unit
+) {
+    val presets = listOf(
+        ChargeCompleteTimerPreset.OFF to stringResource(R.string.timer_off),
+        ChargeCompleteTimerPreset.MIN_5 to stringResource(R.string.timer_5),
+        ChargeCompleteTimerPreset.MIN_15 to stringResource(R.string.timer_15),
+        ChargeCompleteTimerPreset.MIN_30 to stringResource(R.string.timer_30),
+        ChargeCompleteTimerPreset.HOUR_1 to stringResource(R.string.timer_60),
+        ChargeCompleteTimerPreset.CUSTOM to stringResource(R.string.timer_custom)
+    )
+    var expanded by remember { mutableStateOf(false) }
+    var customText by remember(customMinutes) { mutableStateOf(customMinutes.toString()) }
+    val customLabel = stringResource(R.string.timer_custom)
+    val selectedLabel = if (selected == ChargeCompleteTimerPreset.CUSTOM) {
+        "$customLabel ($customMinutes ${stringResource(R.string.timer_custom_hint).lowercase()})"
+    } else {
+        presets.firstOrNull { it.first == selected }?.second.orEmpty()
+    }
+
+    Column {
+        ExposedDropdownMenuBox(expanded = expanded, onExpandedChange = { expanded = it }) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(14.dp))
+                    .clickable { expanded = true }
+                    .background(NothingMediumGray)
+                    .padding(horizontal = 14.dp, vertical = 14.dp)
+                    .menuAnchor(),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Text(selectedLabel, style = MaterialTheme.typography.bodyLarge, color = NothingWhite)
+                Icon(Icons.Default.KeyboardArrowDown, contentDescription = null, tint = NothingLightGray)
+            }
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.background(NothingDarkGray)
+            ) {
+                presets.forEach { (timer, label) ->
+                    DropdownMenuItem(
+                        text = {
+                            Text(
+                                label,
+                                style = MaterialTheme.typography.bodyLarge,
+                                color = if (selected == timer) NothingWhite else NothingLightGray
+                            )
+                        },
+                        onClick = {
+                            onSelect(timer)
+                            expanded = false
+                        }
+                    )
+                }
+            }
+        }
+
+        AnimatedVisibility(
+            visible = selected == ChargeCompleteTimerPreset.CUSTOM,
+            enter = expandVertically() + fadeIn(),
+            exit = shrinkVertically() + fadeOut()
+        ) {
+            Row(
+                modifier = Modifier.fillMaxWidth().padding(top = 8.dp),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                OutlinedTextField(
+                    value = customText,
+                    onValueChange = { customText = it.filter(Char::isDigit).take(4) },
+                    label = {
+                        Text(
+                            stringResource(R.string.timer_custom_hint),
+                            style = MaterialTheme.typography.bodySmall
+                        )
+                    },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    singleLine = true,
+                    modifier = Modifier.weight(1f),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = NothingWhite,
+                        unfocusedTextColor = NothingWhite,
+                        cursorColor = NothingWhite,
+                        focusedBorderColor = NothingWhite,
+                        unfocusedBorderColor = NothingLightGray,
+                        focusedLabelColor = NothingWhite,
+                        unfocusedLabelColor = NothingLightGray
+                    ),
+                    shape = RoundedCornerShape(14.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                IconButton(
+                    onClick = {
+                        customText.toIntOrNull()?.takeIf { it in 1..1440 }?.let { minutes ->
+                            onUpdateCustomMinutes(minutes)
+                            onSelect(ChargeCompleteTimerPreset.CUSTOM)
+                        }
+                    },
+                    modifier = Modifier
+                        .size(48.dp)
+                        .clip(CircleShape)
+                        .background(NothingMediumGray)
+                ) {
+                    Icon(Icons.Default.Check, contentDescription = null, tint = NothingWhite)
                 }
             }
         }

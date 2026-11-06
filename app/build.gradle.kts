@@ -17,10 +17,11 @@ android {
 
     defaultConfig {
         applicationId = "com.nothing.glyphbattery"
-        minSdk = 33
+        minSdk = 34
         targetSdk = 34
-        versionCode = 1
-        versionName = "1.9.6"
+        versionCode = 3
+        versionName = "2.1.0"
+        manifestPlaceholders["nothingApiKey"] = localProps.getProperty("NOTHING_API_KEY", "test")
     }
 
     signingConfigs {
@@ -61,8 +62,8 @@ android {
     }
 
     lint {
-        checkReleaseBuilds = false
-        abortOnError = false
+        checkReleaseBuilds = true
+        abortOnError = true
     }
 }
 
@@ -80,11 +81,9 @@ dependencies {
     implementation(platform("androidx.compose:compose-bom:2024.01.00"))
     implementation("androidx.compose.ui:ui")
     implementation("androidx.compose.ui:ui-graphics")
-    implementation("androidx.compose.ui:ui-tooling-preview")
     implementation("androidx.compose.material3:material3")
-    implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.compose.material:material-icons-core")
     implementation("androidx.lifecycle:lifecycle-runtime-compose:2.7.0")
     implementation("androidx.navigation:navigation-compose:2.7.6")
-
-    debugImplementation("androidx.compose.ui:ui-tooling")
+    testImplementation("junit:junit:4.13.2")
 }

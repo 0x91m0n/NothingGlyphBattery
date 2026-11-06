@@ -1,12 +1,14 @@
 package com.nothing.glyphbattery
 
 import android.app.Application
-import android.content.res.Configuration
+import com.nothing.glyphbattery.data.AppLanguageManager
 import com.nothing.glyphbattery.data.SettingsStore
-import com.nothing.glyphbattery.model.AppLanguage
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.runBlocking
-import java.util.Locale
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class GlyphBatteryApp : Application() {
 
@@ -16,18 +18,11 @@ class GlyphBatteryApp : Application() {
     override fun onCreate() {
         super.onCreate()
         settingsStore = SettingsStore(this)
-        applyLanguage()
-    }
-
-    fun applyLanguage() {
-        val settings = runBlocking { settingsStore.settings.first() }
-        if (settings.language != AppLanguage.SYSTEM) {
-            val locale = Locale(settings.language.code)
-            Locale.setDefault(locale)
-            val config = Configuration(resources.configuration)
-            config.setLocale(locale)
-            createConfigurationContext(config)
-            resources.updateConfiguration(config, resources.displayMetrics)
+        CoroutineScope(SupervisorJob() + Dispatchers.Main.immediate).launch {
+            val language = withContext(Dispatchers.IO) {
+                settingsStore.settings.first().language
+            }
+            AppLanguageManager.apply(this@GlyphBatteryApp, language)
         }
     }
 }
